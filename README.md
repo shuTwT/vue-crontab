@@ -1,56 +1,188 @@
-# crontab
+# vue-crontab
 
-界面是用VUE去建设的，但是在运算逻辑还是以Javascript为主。尤其解析crontab相应时间结果，稍显复杂。
+基于 Vue 3 实现的可视化 Crontab 表达式生成器，支持秒、分钟、小时、日、月、周、年七个维度的配置，能够实时预览最近5次执行时间。
 
-线上访问地址：[https://jingjingke.github.io/crontab/dist/](https://jingjingke.github.io/crontab/dist/)
+## 项目特性
 
-## npm发布 ##
-该项目npm包名：vue-crontab-ui，具体内容指路npmjs分支。
+- ✅ 基于 Vue 3 + TypeScript 开发
+- ✅ 支持七个时间维度的可视化配置
+- ✅ 实时预览最近5次执行时间
+- ✅ 提供弹层组件，方便集成到现有项目
+- ✅ 支持自定义样式变量
+- ✅ 响应式设计，适配不同屏幕尺寸
+- ✅ 支持键盘导航和无障碍访问
 
-目前master分支的内容已经合并到npmjs中，若后期有bug需要维护，可以在master分支中拉出新的分支，再将代码合到master与npmjs中。这样能够保最大程度保持代码一致性。
+## 安装
 
-## 目录结构 ##
-
-其它都是套路，主要说一下src目录中的文件主要是做什么的。
-
-```pre
-
-├── App.vue                      // 开始界面
-├── main.js                      // 入口文件
-├── assets                       // 静态资源:样式/图片等
-├── components                   // crontab组件们
-│   ├── Crontab.vue              // crontab组件主界面
-│   ├── crontab.js               // crontab组件主界面使用的js代码
-│   ├── Crontab-Year.vue         // “年”组件
-│   ├── crontab-year.js          // “年”组件使用的js代码
-│   ├── Crontab-Mouth.vue        // “月”组件
-│   ├── crontab-mouth.js         // “月”组件使用的js代码
-│   ├── Crontab-Day.vue          // “日”组件
-│   ├── crontab-day.js           // “日”组件使用的js代码
-│   ├── Crontab-Hour.vue         // “时”组件
-│   ├── crontab-hour.js          // “时”组件使用的js代码
-│   ├── Crontab-Min.vue          // “分”组件
-│   ├── crontab-min.js           // “分”组件使用的js代码
-│   ├── Crontab-Second.vue       // “秒”组件
-│   ├── crontab-second.js        // “秒”组件使用的js代码
-│   ├── Crontab-Result.vue       // “结果”组件（解析最近5次运行时间）
-│   └── crontab-result.js        // “结果”组件使用的js代码
-
-
+```bash
+npm install @shutwt/vue-crontab
 ```
 
-## 解析逻辑  ##
+## 基本使用
 
-逻辑、表达式如果有我理解不正确的地方，欢迎提意见。虽然是依托VUE去做的项目，但是解析的代码用原生JS也是可以实现的。
+### 1. 直接使用弹层组件（推荐）
 
-具体可以参考：src/components/Crontab-result.js中的expressionChange()方法，这是解析的主要方法。它首先会将表达式用空格分隔成几块，再对每一个小规则进行操作。
+```vue
+<template>
+  <div>
+    <input readonly v-model="crontabValue" />
+    <button @click="showCrontab = true">选择时间规则</button>
+    <CrontabModal 
+      v-if="showCrontab" 
+      @hide="showCrontab = false" 
+      @fill="handleFill" 
+      :value="crontabValue"
+    />
+  </div>
+</template>
 
-其中用的比较多的就是各种数组，例如我会将符合规则的秒数放在一个数组中;另一个就是利用continue label跳出指定循环（例如向上跳两层for循环）。
+<script setup>
+import { ref } from 'vue'
+import { CrontabModal } from '@shutwt/vue-crontab'
 
-文件中也有相应的注释，读起来应该不会太费力~~
+const crontabValue = ref('')
+const showCrontab = ref(false)
 
+const handleFill = (value) => {
+  crontabValue.value = value
+}
+</script>
+```
 
+### 2. 单独使用内容组件
 
-## 效果截图 ##
+```vue
+<template>
+  <div>
+    <Crontab 
+      :value="crontabValue"
+      @input="handleInput"
+    />
+  </div>
+</template>
 
-![效果截图](https://jingjingke.github.io/crontab/src/assets/effect.png)
+<script setup>
+import { ref } from 'vue'
+import { Crontab } from '@shutwt/vue-crontab'
+
+const crontabValue = ref('')
+
+const handleInput = (value) => {
+  crontabValue.value = value
+}
+</script>
+```
+
+## 组件 API
+
+### CrontabModal 组件
+
+#### Props
+
+| 属性名 | 类型 | 默认值 | 说明 |
+|-------|------|-------|------|
+| value | string | '' | 初始的 Cron 表达式 |
+| render | boolean/string | true | 控制组件是否渲染 |
+
+#### Emits
+
+| 事件名 | 参数 | 说明 |
+|-------|------|------|
+| hide | - | 关闭弹窗时触发 |
+| fill | value: string | 点击确定按钮时触发，返回完整的 Cron 表达式 |
+| input | value: string | Cron 表达式变化时触发 |
+| update:modelValue | value: string | 用于 v-model 双向绑定 |
+
+### Crontab 组件
+
+#### Props
+
+| 属性名 | 类型 | 默认值 | 说明 |
+|-------|------|-------|------|
+| value | string | '' | 初始的 Cron 表达式 |
+
+#### Emits
+
+| 事件名 | 参数 | 说明 |
+|-------|------|------|
+| input | value: string | Cron 表达式变化时触发 |
+| update:modelValue | value: string | 用于 v-model 双向绑定 |
+
+## 目录结构
+
+```pre
+├── App.vue                      // 示例页面
+├── main.ts                      // 入口文件
+├── lib.ts                       // 组件库入口
+├── assets                       // 静态资源:样式/图片等
+│   └── global.css               // 全局样式变量
+├── components                   // crontab组件们
+│   ├── CrontabModal.vue         // 弹层组件
+│   ├── Crontab.vue              // 主内容组件
+│   ├── Crontab-Second.vue       // “秒”组件
+│   ├── Crontab-Min.vue          // “分”组件
+│   ├── Crontab-Hour.vue         // “时”组件
+│   ├── Crontab-Day.vue          // “日”组件
+│   ├── Crontab-Mouth.vue        // “月”组件
+│   ├── Crontab-Week.vue         // “周”组件
+│   ├── Crontab-Year.vue         // “年”组件
+│   └── Crontab-Result.vue       // 结果预览组件
+```
+
+## 解析逻辑
+
+解析 Crontab 表达式的核心逻辑位于 `Crontab-Result.vue` 组件中，主要通过以下步骤实现：
+
+1. 将 Cron 表达式按空格分割成多个时间字段
+2. 对每个字段进行解析，生成符合规则的时间数组
+3. 根据当前时间和解析结果，计算出最近5次执行时间
+4. 实时更新预览结果
+
+## 样式定制
+
+组件使用 CSS 变量定义主题样式，可以通过覆盖这些变量来自定义外观：
+
+```css
+:root {
+  --crontab-color-primary: #4f46e5;          /* 主题色 */
+  --crontab-color-background: #ffffff;        /* 背景色 */
+  --crontab-color-surface: #f8fafc;          /* 表面色 */
+  --crontab-color-text-primary: #1e293b;     /* 主文本色 */
+  /* 更多样式变量请参考 src/assets/global.css */
+}
+```
+
+## 效果截图
+
+![效果截图](https://github.com/shuTwT/vue-crontab/blob/master/static/effect.png?raw=true)
+
+## 开发与构建
+
+### 安装依赖
+
+```bash
+pnpm install
+```
+
+### 开发模式
+
+```bash
+pnpm run dev
+```
+
+### 构建生产版本
+
+```bash
+pnpm run build
+```
+
+## 浏览器支持
+
+- Chrome (推荐)
+- Firefox
+- Safari
+- Edge
+
+## 许可证
+
+MIT License
