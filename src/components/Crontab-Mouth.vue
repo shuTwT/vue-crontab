@@ -18,95 +18,101 @@
 	</li>
 </template>
 
-<script lang="ts">
-export default {
-	data() {
-		return {
-			radioValue:'1',
-			cycle01:1,
-			cycle02:2,
-			average01:1,
-			average02:1,
-			checkboxList:[] as string[]
-		}
-	},
-	name: 'crontab-mouth',
-	props:['check','init'],
-	methods: {
-		radioChange(){
-			switch(this.radioValue){
-				case '1':
-					this.$emit('updata','mouth','*');
-					break;
-				case '2':
-					this.$emit('updata','mouth',this.cycle01 + '-' + this.cycle02);
-					break;
-				case '3':
-					this.$emit('updata','mouth',this.average01 + '/' + this.average02);
-					break;
-				case '4':
-					this.$emit('updata','mouth',this.checkboxString);
-					break;
-			}
-		},
-		cycleChange(){
-			if(this.radioValue==='2'){
-				this.$emit('updata','mouth',this.cycleTotal);
-			}
-		},
-		averageChange(){
-			if(this.radioValue==='3'){
-				this.$emit('updata','mouth',this.averageTotal);
-			}
-		},
-		checkboxChange(){
-			if(this.radioValue==='4'){
-				this.$emit('updata','mouth',this.checkboxString);
-			}
-		}
-	},
-	watch: {
-		"radioValue":"radioChange",
-		'cycleTotal':'cycleChange',
-		'averageTotal':'averageChange',
-		'checkboxString':'checkboxChange'
-	},
-	computed: {
-		cycleTotal(): string{
-			this.cycle01 = this.check(this.cycle01,1,12)
-			this.cycle02 = this.check(this.cycle02,1,12)
-			return this.cycle01+'-'+this.cycle02;
-		},
-		averageTotal(): string{
-			this.average01 = this.check(this.average01,1,12)
-			this.average02 = this.check(this.average02,1,12)
-			return this.average01+'/'+this.average02;
-		},
-		checkboxString(): string{
-			let str = this.checkboxList.join();
-			return str===''?'*':str;
-		}
-	},
-  mounted() {
-    let cycleArr = this.init.split('-');
-    if(cycleArr.length === 2){
-      this.radioValue = '2';
-      this.cycle01 = Number(cycleArr[0]);
-      this.cycle02 = Number(cycleArr[1]);
-      return;
-    }
-    let averageArr = this.init.split('/');
-    if(averageArr.length === 2){
-      this.radioValue = '3';
-      this.average01 = Number(averageArr[0]);
-      this.average02 = Number(averageArr[1]);
-      return;
-    }
-    if(this.init !== '*'){
-      this.radioValue = '4';
-      let list = this.init.split(',');
-      this.checkboxList = list;
-    }
-  }
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+
+const props = defineProps<{
+	check: (value: number, minLimit: number, maxLimit: number) => number
+	init: string
+}>()
+
+const emit = defineEmits<{
+	updata: [name: string, value: string]
+}>()
+
+const radioValue = ref('1')
+const cycle01 = ref(1)
+const cycle02 = ref(2)
+const average01 = ref(1)
+const average02 = ref(1)
+const checkboxList = ref<string[]>([])
+
+const cycleTotal = computed(() => {
+	cycle01.value = props.check(cycle01.value, 1, 12)
+	cycle02.value = props.check(cycle02.value, 1, 12)
+	return cycle01.value + '-' + cycle02.value
+})
+
+const averageTotal = computed(() => {
+	average01.value = props.check(average01.value, 1, 12)
+	average02.value = props.check(average02.value, 1, 12)
+	return average01.value + '/' + average02.value
+})
+
+const checkboxString = computed(() => {
+	const str = checkboxList.value.join()
+	return str === '' ? '*' : str
+})
+
+const radioChange = () => {
+	switch(radioValue.value){
+		case '1':
+			emit('updata', 'mouth', '*')
+			break
+		case '2':
+			emit('updata', 'mouth', cycleTotal.value)
+			break
+		case '3':
+			emit('updata', 'mouth', averageTotal.value)
+			break
+		case '4':
+			emit('updata', 'mouth', checkboxString.value)
+			break
+	}
 }
+
+const cycleChange = () => {
+	if(radioValue.value === '2'){
+		emit('updata', 'mouth', cycleTotal.value)
+	}
+}
+
+const averageChange = () => {
+	if(radioValue.value === '3'){
+		emit('updata', 'mouth', averageTotal.value)
+	}
+}
+
+const checkboxChange = () => {
+	if(radioValue.value === '4'){
+		emit('updata', 'mouth', checkboxString.value)
+	}
+}
+
+watch(radioValue, radioChange)
+watch(cycleTotal, cycleChange)
+watch(averageTotal, averageChange)
+watch(checkboxString, checkboxChange)
+
+onMounted(() => {
+	const cycleArr = props.init.split('-')
+	if(cycleArr.length === 2){
+		radioValue.value = '2'
+		cycle01.value = Number(cycleArr[0])
+		cycle02.value = Number(cycleArr[1])
+		return
+	}
+	const averageArr = props.init.split('/')
+	if(averageArr.length === 2){
+		radioValue.value = '3'
+		average01.value = Number(averageArr[0])
+		average02.value = Number(averageArr[1])
+		return
+	}
+	if(props.init !== '*'){
+		radioValue.value = '4'
+		const list = props.init.split(',')
+		checkboxList.value = list
+	}
+})
 </script>

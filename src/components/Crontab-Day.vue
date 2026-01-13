@@ -27,136 +27,146 @@
 	</li>
 </template>
 
-<script lang="ts">
-export default {
-	data() {
-		return {
-			radioValue:'1',
-			workday:1,
-			cycle01:1,
-			cycle02:2,
-			average01:1,
-			average02:1,
-			checkboxList:[] as string[]
-		}
-	},
-	name: 'crontab-day',
-	props:['check','week','init'],
-	methods: {
-		radioChange(){
-			switch(this.radioValue){
-				case '1':
-					this.$emit('updata','day','*');
-					break;
-				case '2':
-					this.$emit('updata','day','?');
-					break;
-				case '3':
-					this.$emit('updata','day',this.cycle01 + '-' + this.cycle02);
-					break;
-				case '4':
-					this.$emit('updata','day',this.average01 + '/' + this.average02);
-					break;
-				case '5':
-					this.$emit('updata','day',this.workday+'W');
-					break;
-				case '6':
-					this.$emit('updata','day','L');
-					break;
-				case '7':
-					this.$emit('updata','day',this.checkboxString);
-					break;
-			}
-		},
-		cycleChange(){
-			if(this.radioValue==='3'){
-				this.$emit('updata','day',this.cycleTotal);
-			}
-		},
-		averageChange(){
-			if(this.radioValue==='4'){
-				this.$emit('updata','day',this.averageTotal);
-			}
-		},
-		workdayChange(){
-			if(this.radioValue==='5'){
-				this.$emit('updata','day',this.workday+'W');
-			}
-		},
-		checkboxChange(){
-			if(this.radioValue==='7'){
-				this.$emit('updata','day',this.checkboxString);
-			}
-		},
-		weekChange(){
-			if(this.week === '?' && this.radioValue == '2'){
-				this.radioValue = '1';
-			}else if(this.week !== '?' && this.radioValue != '2'){
-				this.radioValue = '2';
-			}
-		}
-	},
-	watch: {
-		"radioValue":"radioChange",
-		'cycleTotal':'cycleChange',
-		'averageTotal':'averageChange',
-		'workdayCheck':'workdayChange',
-		'checkboxString':'checkboxChange',
-		'week':'weekChange'
-	},
-	computed: {
-		cycleTotal(): string{
-			this.cycle01 = this.check(this.cycle01,1,31)
-			this.cycle02 = this.check(this.cycle02,1,31)
-			return this.cycle01+'-'+this.cycle02;
-		},
-		averageTotal(): string{
-			this.average01 = this.check(this.average01,1,31)
-			this.average02 = this.check(this.average02,1,31)
-			return this.average01+'/'+this.average02;
-		},
-		workdayCheck(): number{
-			this.workday = this.check(this.workday,1,31)
-			return this.workday;
-		},
-		checkboxString(): string{
-			let str = this.checkboxList.join();
-			return str===''?'*':str;
-		}
-	},
-  mounted() {
-    if(this.init === '?'){
-      this.radioValue = '2';
-      return;
-    }
-    let cycleArr = this.init.split('-');
-    if(cycleArr.length === 2){
-      this.radioValue = '3';
-      this.cycle01 = Number(cycleArr[0]);
-      this.cycle02 = Number(cycleArr[1]);
-      return;
-    }
-    let averageArr = this.init.split('/');
-    if(averageArr.length === 2){
-      this.radioValue = '4';
-      this.average01 = Number(averageArr[0]);
-      this.average02 = Number(averageArr[1]);
-      return;
-    }
-    if(/W/.test(this.init)){
-      this.radioValue = '5';
-      this.workday = Number(this.init.replace('W',''));
-      return;
-    }
-    if(this.init === 'L'){
-      this.radioValue = '6';
-      return;
-    }
-    if(this.init !== '*'){
-      this.radioValue = '7';
-      let list = this.init.split(',');
-      this.checkboxList = list;
-    }
-  }
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+
+const props = defineProps<{
+	check: (value: number, minLimit: number, maxLimit: number) => number
+	week: string
+	init: string
+}>()
+
+const emit = defineEmits<{
+	updata: [name: string, value: string]
+}>()
+
+const radioValue = ref('1')
+const workday = ref(1)
+const cycle01 = ref(1)
+const cycle02 = ref(2)
+const average01 = ref(1)
+const average02 = ref(1)
+const checkboxList = ref<string[]>([])
+
+const cycleTotal = computed(() => {
+	cycle01.value = props.check(cycle01.value, 1, 31)
+	cycle02.value = props.check(cycle02.value, 1, 31)
+	return cycle01.value + '-' + cycle02.value
+})
+
+const averageTotal = computed(() => {
+	average01.value = props.check(average01.value, 1, 31)
+	average02.value = props.check(average02.value, 1, 31)
+	return average01.value + '/' + average02.value
+})
+
+const workdayCheck = computed(() => {
+	workday.value = props.check(workday.value, 1, 31)
+	return workday.value
+})
+
+const checkboxString = computed(() => {
+	const str = checkboxList.value.join()
+	return str === '' ? '*' : str
+})
+
+const radioChange = () => {
+	switch(radioValue.value){
+		case '1':
+			emit('updata', 'day', '*')
+			break
+		case '2':
+			emit('updata', 'day', '?')
+			break
+		case '3':
+			emit('updata', 'day', cycleTotal.value)
+			break
+		case '4':
+			emit('updata', 'day', averageTotal.value)
+			break
+		case '5':
+			emit('updata', 'day', workday.value + 'W')
+			break
+		case '6':
+			emit('updata', 'day', 'L')
+			break
+		case '7':
+			emit('updata', 'day', checkboxString.value)
+			break
+	}
 }
+
+const cycleChange = () => {
+	if(radioValue.value === '3'){
+		emit('updata', 'day', cycleTotal.value)
+	}
+}
+
+const averageChange = () => {
+	if(radioValue.value === '4'){
+		emit('updata', 'day', averageTotal.value)
+	}
+}
+
+const workdayChange = () => {
+	if(radioValue.value === '5'){
+		emit('updata', 'day', workday.value + 'W')
+	}
+}
+
+const checkboxChange = () => {
+	if(radioValue.value === '7'){
+		emit('updata', 'day', checkboxString.value)
+	}
+}
+
+const weekChange = () => {
+	if(props.week === '?' && radioValue.value == '2'){
+		radioValue.value = '1'
+	}else if(props.week !== '?' && radioValue.value != '2'){
+		radioValue.value = '2'
+	}
+}
+
+watch(radioValue, radioChange)
+watch(cycleTotal, cycleChange)
+watch(averageTotal, averageChange)
+watch(workdayCheck, workdayChange)
+watch(checkboxString, checkboxChange)
+watch(() => props.week, weekChange)
+
+onMounted(() => {
+	if(props.init === '?'){
+		radioValue.value = '2'
+		return
+	}
+	const cycleArr = props.init.split('-')
+	if(cycleArr.length === 2){
+		radioValue.value = '3'
+		cycle01.value = Number(cycleArr[0])
+		cycle02.value = Number(cycleArr[1])
+		return
+	}
+	const averageArr = props.init.split('/')
+	if(averageArr.length === 2){
+		radioValue.value = '4'
+		average01.value = Number(averageArr[0])
+		average02.value = Number(averageArr[1])
+		return
+	}
+	if(/W/.test(props.init)){
+		radioValue.value = '5'
+		workday.value = Number(props.init.replace('W',''))
+		return
+	}
+	if(props.init === 'L'){
+		radioValue.value = '6'
+		return
+	}
+	if(props.init !== '*'){
+		radioValue.value = '7'
+		const list = props.init.split(',')
+		checkboxList.value = list
+	}
+})
 </script>
