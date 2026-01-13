@@ -1,15 +1,14 @@
 {
   "name": "@shutwt/vue-crontab",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A Vue.js component for crontab expression",
   "author": "shutwt",
-  "private": true,
   "type": "module",
   "module": "dist/vue-crontab.js",
   "main": "dist/vue-crontab.umd.cjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shutwt/vue-crontab.git"
+    "url": "git+https://github.com/shutwt/vue-crontab.git"
   },
   "files": [
     "dist/*.js",
