@@ -1,127 +1,121 @@
 <template>
-	<div class="crontab-warp" v-if="inited" role="dialog" aria-modal="true" aria-labelledby="crontab-title">
-		<div class="crontab-main">
-			<ul class="crontab-title" role="tablist" aria-label="时间维度选择">
-				<li id="crontab-title" role="presentation">规则类型</li>
-				<li 
-					v-for='(item, index) of tabTitles' 
-					:key="index"
-					:id="`tab-${index}`"
-					:class='{ on: index === tabActive }' 
-					@click='tabCheck(index)'
-					@keydown.enter='tabCheck(index)'
-					@keydown.space='tabCheck(index)'
-					role="tab"
-					:aria-selected="index === tabActive"
-					:aria-controls="`tabpanel-${index}`"
-					tabindex="0"
-				>{{ item }}
-				</li>
-			</ul>
-			<ul class="crontab-body">
-				<CrontabSecond 
-					:class='{ on: tabActive === 0 }' 
-					:init="contabValueObj.second"
-					@updata='updataContabValue' 
-					:check='checkNumber'
-					role="tabpanel"
-					:id="`tabpanel-0`"
-					:aria-labelledby="`tab-0`"
-					:aria-hidden="tabActive !== 0"
-				></CrontabSecond>
-				<CrontabMin 
-					:class='{ on: tabActive === 1 }' 
-					:init="contabValueObj.min" 
-					@updata='updataContabValue'
-					:check='checkNumber'
-					role="tabpanel"
-					:id="`tabpanel-1`"
-					:aria-labelledby="`tab-1`"
-					:aria-hidden="tabActive !== 1"
-				></CrontabMin>
-				<CrontabHour 
-					:class='{ on: tabActive === 2 }' 
-					:init="contabValueObj.hour" 
-					@updata='updataContabValue'
-					:check='checkNumber'
-					role="tabpanel"
-					:id="`tabpanel-2`"
-					:aria-labelledby="`tab-2`"
-					:aria-hidden="tabActive !== 2"
-				></CrontabHour>
-				<CrontabDay 
-					:class='{ on: tabActive === 3 }' 
-					:init="contabValueObj.day" 
-					@updata='updataContabValue'
-					:check='checkNumber' 
-					:week='contabValueObj.week'
-					role="tabpanel"
-					:id="`tabpanel-3`"
-					:aria-labelledby="`tab-3`"
-					:aria-hidden="tabActive !== 3"
-				></CrontabDay>
-				<CrontabMouth 
-					:class='{ on: tabActive === 4 }' 
-					:init="contabValueObj.mouth" 
-					@updata='updataContabValue'
-					:check='checkNumber'
-					role="tabpanel"
-					:id="`tabpanel-4`"
-					:aria-labelledby="`tab-4`"
-					:aria-hidden="tabActive !== 4"
-				></CrontabMouth>
-				<CrontabWeek 
-					:class='{ on: tabActive === 5 }' 
-					:init="contabValueObj.week" 
-					@updata='updataContabValue'
-					:check='checkNumber' 
-					:day='contabValueObj.day'
-					role="tabpanel"
-					:id="`tabpanel-5`"
-					:aria-labelledby="`tab-5`"
-					:aria-hidden="tabActive !== 5"
-				></CrontabWeek>
-				<CrontabYear 
-					:class='{ on: tabActive === 6 }' 
-					:init="contabValueObj.year" 
-					@updata='updataContabValue'
-					:check='checkNumber'
-					role="tabpanel"
-					:id="`tabpanel-6`"
-					:aria-labelledby="`tab-6`"
-					:aria-hidden="tabActive !== 6"
-				></CrontabYear>
-			</ul>
-			<div class="crontab-result">
-				<p class="crontab-result__title">时间表达式</p>
-				<table>
-					<thead>
-						<tr>
-							<th v-for='item of tabTitles' width='40'>{{ item }}</th>
-							<th>crontab完整表达式</th>
-						</tr>
+	<div class="crontab-content">
+		<ul class="crontab-title" role="tablist" aria-label="时间维度选择">
+			<li id="crontab-title" role="presentation">规则类型</li>
+			<li 
+				v-for='(item, index) of tabTitles' 
+				:key="index"
+				:id="`tab-${index}`"
+				:class='{ on: index === tabActive }' 
+				@click='tabCheck(index)'
+				@keydown.enter='tabCheck(index)'
+				@keydown.space='tabCheck(index)'
+				role="tab"
+				:aria-selected="index === tabActive"
+				:aria-controls="`tabpanel-${index}`"
+				tabindex="0"
+			>{{ item }}
+			</li>
+		</ul>
+		<ul class="crontab-body">
+			<CrontabSecond 
+				:class='{ on: tabActive === 0 }' 
+				:init="contabValueObj.second"
+				@updata='updataContabValue' 
+				:check='checkNumber'
+				role="tabpanel"
+				:id="`tabpanel-0`"
+				:aria-labelledby="`tab-0`"
+				:aria-hidden="tabActive !== 0"
+			></CrontabSecond>
+			<CrontabMin 
+				:class='{ on: tabActive === 1 }' 
+				:init="contabValueObj.min" 
+				@updata='updataContabValue'
+				:check='checkNumber'
+				role="tabpanel"
+				:id="`tabpanel-1`"
+				:aria-labelledby="`tab-1`"
+				:aria-hidden="tabActive !== 1"
+			></CrontabMin>
+			<CrontabHour 
+				:class='{ on: tabActive === 2 }' 
+				:init="contabValueObj.hour" 
+				@updata='updataContabValue'
+				:check='checkNumber'
+				role="tabpanel"
+				:id="`tabpanel-2`"
+				:aria-labelledby="`tab-2`"
+				:aria-hidden="tabActive !== 2"
+			></CrontabHour>
+			<CrontabDay 
+				:class='{ on: tabActive === 3 }' 
+				:init="contabValueObj.day" 
+				@updata='updataContabValue'
+				:check='checkNumber' 
+				:week='contabValueObj.week'
+				role="tabpanel"
+				:id="`tabpanel-3`"
+				:aria-labelledby="`tab-3`"
+				:aria-hidden="tabActive !== 3"
+			></CrontabDay>
+			<CrontabMouth 
+				:class='{ on: tabActive === 4 }' 
+				:init="contabValueObj.mouth" 
+				@updata='updataContabValue'
+				:check='checkNumber'
+				role="tabpanel"
+				:id="`tabpanel-4`"
+				:aria-labelledby="`tab-4`"
+				:aria-hidden="tabActive !== 4"
+			></CrontabMouth>
+			<CrontabWeek 
+				:class='{ on: tabActive === 5 }' 
+				:init="contabValueObj.week" 
+				@updata='updataContabValue'
+				:check='checkNumber' 
+				:day='contabValueObj.day'
+				role="tabpanel"
+				:id="`tabpanel-5`"
+				:aria-labelledby="`tab-5`"
+				:aria-hidden="tabActive !== 5"
+			></CrontabWeek>
+			<CrontabYear 
+				:class='{ on: tabActive === 6 }' 
+				:init="contabValueObj.year" 
+				@updata='updataContabValue'
+				:check='checkNumber'
+				role="tabpanel"
+				:id="`tabpanel-6`"
+				:aria-labelledby="`tab-6`"
+				:aria-hidden="tabActive !== 6"
+			></CrontabYear>
+		</ul>
+		<div class="crontab-result">
+			<p class="crontab-result__title">时间表达式</p>
+			<table>
+				<thead>
+					<tr>
+						<th v-for='item of tabTitles' width='40'>{{ item }}</th>
+						<th>crontab完整表达式</th>
+					</tr>
 
-					</thead>
-					<tbody>
-						<tr>
-							<td><span>{{ contabValueObj.second }}</span></td>
-							<td><span>{{ contabValueObj.min }}</span></td>
-							<td><span>{{ contabValueObj.hour }}</span></td>
-							<td><span>{{ contabValueObj.day }}</span></td>
-							<td><span>{{ contabValueObj.mouth }}</span></td>
-							<td><span>{{ contabValueObj.week }}</span></td>
-							<td><span>{{ contabValueObj.year }}</span></td>
-							<td><span>{{ contabValueString }}</span></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<CrontabResult :ex='contabValueString'></CrontabResult>
-			<div class="crontab-btns">
-				<button type="button" @click='submitFill'>确定</button>
-				<button type="button" @click='hidePopup'>取消</button>
-			</div>
+				</thead>
+				<tbody>
+					<tr>
+						<td><span>{{ contabValueObj.second }}</span></td>
+						<td><span>{{ contabValueObj.min }}</span></td>
+						<td><span>{{ contabValueObj.hour }}</span></td>
+						<td><span>{{ contabValueObj.day }}</span></td>
+						<td><span>{{ contabValueObj.mouth }}</span></td>
+						<td><span>{{ contabValueObj.week }}</span></td>
+						<td><span>{{ contabValueObj.year }}</span></td>
+						<td><span>{{ contabValueString }}</span></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
+		<CrontabResult :ex='contabValueString'></CrontabResult>
 	</div>
 </template>
 
@@ -167,27 +161,20 @@ interface ContabValueObj {
 
 /**
  * 组件 Props 定义
- * @property render - 控制组件是否渲染，默认为 true
  * @property value - 初始的 Cron 表达式字符串，格式如 "0 0 12 * * ?"
  */
 const props = withDefaults(defineProps<{
-	render?: boolean | string
 	value?: string
 }>(), {
-	render: true,
 	value: '',
 })
 
 /**
  * 组件 Emits 定义
- * @event hide - 隐藏弹窗时触发
- * @event fill - 点击确定按钮时触发，返回完整的 Cron 表达式
  * @event input - Cron 表达式变化时触发
  * @event update:modelValue - 用于 v-model 双向绑定
  */
 const emit = defineEmits<{
-	hide: []
-	fill: [value: string]
 	input: [value: string]
 	'update:modelValue': [value: string]
 }>()
@@ -223,11 +210,7 @@ const contabValueObj = ref<ContabValueObj>({
 	year: '',      // 默认不指定年份
 })
 
-/**
- * 组件是否已初始化
- * 用于控制组件的渲染时机
- */
-const inited = ref(false)
+
 
 /**
  * 切换 Tab
@@ -265,22 +248,7 @@ const checkNumber = (value: number, minLimit: number, maxLimit: number): number 
 	return value;
 }
 
-/**
- * 隐藏弹窗
- * 触发 hide 事件通知父组件隐藏弹窗
- */
-const hidePopup = () => {
-	emit('hide');
-}
 
-/**
- * 提交填充
- * 点击确定按钮时触发，将当前的 Cron 表达式返回给父组件
- */
-const submitFill = () => {
-	emit('fill', contabValueString.value);
-	hidePopup();
-}
 
 /**
  * 计算属性：生成完整的 Cron 表达式字符串
@@ -305,23 +273,11 @@ watch(contabValueString, (value) => {
 })
 
 /**
- * 监听 render 属性变化
- * 控制组件的初始化时机
- */
-watch(() => props.render, (value) => {
-	if ((value === true || value === "true") && !inited.value) {
-		inited.value = true;
-	}
-})
-
-/**
  * 组件挂载时的初始化逻辑
- * 1. 根据 render 属性设置初始化状态
- * 2. 如果有传入的 value，解析并填充到各个字段
- * 3. 如果没有传入 value，使用默认值并触发 input 事件
+ * 1. 如果有传入的 value，解析并填充到各个字段
+ * 2. 如果没有传入 value，使用默认值并触发 input 事件
  */
 onMounted(() => {
-	inited.value = props.render === true || props.render === 'true';
 	if (props.value === '') {
 		// 没有传入初始值，使用默认值
 		emit('input', contabValueString.value);
@@ -342,91 +298,25 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 全局重置和基础样式 */
-* {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-}
-
-
-/* 主容器样式 */
-.crontab-warp {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: var(--crontab-color-overlay);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: var(--crontab-z-index-modal);
-	backdrop-filter: blur(4px);
-	animation: fadeIn var(--crontab-transition-duration) var(--crontab-transition-timing);
-}
-
-/* 主容器淡出动画 */
-.crontab-warp.fade-out {
-	animation: fadeOut var(--crontab-transition-duration) var(--crontab-transition-timing) forwards;
-}
-
-@keyframes fadeOut {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-		visibility: hidden;
-	}
-}
-
-/* 弹窗主体样式 */
-.crontab-main {
-	position: relative;
-	width: var(--crontab-width-main);
-	max-width: 95%;
-	max-height: 95vh;
-	height: var(--crontab-height-main);
-	background: var(--crontab-color-background);
-	border-radius: var(--crontab-border-radius-lg);
-	font-size: var(--crontab-font-size-base);
-	overflow: hidden;
-	box-shadow: var(--crontab-shadow-xl);
-	transition: all var(--crontab-transition-all);
+/* 内容容器样式 */
+.crontab-content {
 	display: flex;
 	flex-direction: column;
-	animation: slideUp var(--crontab-transition-duration) var(--crontab-transition-timing);
+	flex: 1;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
 }
 
-/* 弹窗主体淡出动画 */
-.crontab-main.fade-out {
-	animation: slideDown var(--crontab-transition-duration) var(--crontab-transition-timing) forwards;
-}
-
-@keyframes slideUp {
+/* 淡入动画 */
+@keyframes fadeIn {
 	from {
 		opacity: 0;
-		transform: translateY(20px) scale(0.95);
-		box-shadow: var(--crontab-shadow-md);
+		transform: translateY(8px);
 	}
 	to {
 		opacity: 1;
-		transform: translateY(0) scale(1);
-		box-shadow: var(--crontab-shadow-xl);
-	}
-}
-
-@keyframes slideDown {
-	from {
-		opacity: 1;
-		transform: translateY(0) scale(1);
-		box-shadow: var(--crontab-shadow-xl);
-	}
-	to {
-		opacity: 0;
-		transform: translateY(20px) scale(0.95);
-		box-shadow: var(--crontab-shadow-md);
+		transform: translateY(0);
 	}
 }
 

@@ -5,13 +5,13 @@
   		<button type="button" @click='changeShow'>选择时间规则</button>
   		<button type="button" @click='crontabValue = ""'>清空</button>
   	</div>
-    <Crontab v-show='showCrontab' @hide='changeShow' @fill='crontabFill'></Crontab>
+    <CrontabModal v-if='showCrontab' @hide='changeShow' @fill='crontabFill' :value="crontabValue"></CrontabModal>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import {Crontab} from './lib'
+import {CrontabModal} from './lib'
 
 const crontabValue = ref('')
 const showCrontab = ref(false)
