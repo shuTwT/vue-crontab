@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import {resolve} from "node:path"
 
 export default defineConfig({
   plugins: [vue()],
@@ -8,8 +9,18 @@ export default defineConfig({
     open: false
   },
   build: {
-    outDir: 'dist',
-    assetsDir: 'static',
-    sourcemap: false
+    minify: false,
+    lib: {
+      entry: resolve(__dirname, 'src/components/Crontab.vue'),
+      name: 'VueCrontab',
+    },
+    rollupOptions: {
+      external: ['vue'],
+      output: {
+        globals: {
+          vue: 'Vue'
+        }
+      }
+    }
   }
 })
