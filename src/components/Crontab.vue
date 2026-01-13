@@ -42,10 +42,127 @@
   </div>
 </template>
 
-<script>
-	import crontab from './crontab';
-	export default crontab;
+<script lang="ts">
+import CrontabSecond from './Crontab-Second.vue'
+import CrontabMin from './Crontab-Min.vue'
+import CrontabHour from './Crontab-Hour.vue'
+import CrontabDay from './Crontab-Day.vue'
+import CrontabMouth from './Crontab-Mouth.vue'
+import CrontabWeek from './Crontab-Week.vue'
+import CrontabYear from './Crontab-Year.vue'
+import CrontabResult from './Crontab-Result.vue'
+
+interface ContabValueObj {
+	second: string
+	min: string
+	hour: string
+	day: string
+	mouth: string
+	week: string
+	year: string
+}
+
+export default {
+	data() {
+		return {
+			tabTitles:["秒","分钟","小时","日","月","周","年"],
+			tabActive:0,
+			myindex:0,
+			contabValueObj:{
+				second:'*',
+				min:'*',
+				hour:'*',
+				day:'*',
+				mouth:'*',
+				week:'?',
+				year:'',
+			} as ContabValueObj,
+      inited:false
+		}
+	},
+	name: 'crontab',
+  props: {
+    render: {
+      type: [Boolean, String],
+      default: true
+    },
+    value: {
+      type: String,
+      default: ''
+    }
+  },
+	methods: {
+		tabCheck(index: number){
+			this.tabActive = index;
+		},
+		updataContabValue(name: string, value: string){
+			(this.contabValueObj as any)[name] = value;
+		},
+		checkNumber(value: number, minLimit: number, maxLimit: number): number{
+			value = Math.floor(value);
+			if(value < minLimit){
+				value = minLimit
+			}else if(value > maxLimit){
+				value = maxLimit
+			}
+			return value;
+		},
+		hidePopup(){
+			this.$emit('hide');
+		},
+		submitFill(){
+			this.$emit('fill',(this as any).contabValueString);
+			this.hidePopup();
+		}
+	},
+	computed: {
+		contabValueString(): string{
+			let obj = (this as any).contabValueObj;
+			let str = obj.second + " " + obj.min + " " + obj.hour + " " + obj.day + " " + obj.mouth + " " + obj.week + (obj.year===""?"":" "+obj.year)
+			return str;
+		}
+	},
+  watch:{
+    contabValueString(value: string) {
+      this.$emit('input',value);
+      this.$emit('update:modelValue',value);
+    },
+    render(value: boolean | string) {
+      if ((value === true || value === "true") && !(this as any).inited) {
+        (this as any).inited = true;
+      }
+    }
+  },
+	components:{
+		CrontabSecond,
+		CrontabMin,
+		CrontabHour,
+		CrontabDay,
+		CrontabMouth,
+		CrontabWeek,
+		CrontabYear,
+		CrontabResult
+	},
+	mounted() {
+    (this as any).inited = (this as any).render === true || (this as any).render === 'true';
+    if ((this as any).value === '') {
+      this.$emit('input', (this as any).contabValueString);
+    } else {
+      let array = (this as any).value.split(' ');
+      if (array.length >= 6) {
+        (this as any).contabValueObj.second = array[0];
+        (this as any).contabValueObj.min = array[1];
+        (this as any).contabValueObj.hour = array[2];
+        (this as any).contabValueObj.day = array[3];
+        (this as any).contabValueObj.mouth = array[4];
+        (this as any).contabValueObj.week = array[5];
+        (this as any).contabValueObj.year = array[6] || '';
+      }
+    }
+	}
+}
 </script>
+
 <style>
 	@import '../assets/popup.css';
 </style>
