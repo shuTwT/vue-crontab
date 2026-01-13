@@ -9,32 +9,22 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import Crontab from './components/Crontab.vue'
 
-export default {
-	data(){
-		return {
-			crontabValue:'',
-			showCrontab:false
-		}
-	},
-  name: 'app',
-  methods:{
-  	// 切换显示
-  	changeShow(){
-  		this.showCrontab = !this.showCrontab;
-  	},
-  	// 填充表达式
-  	crontabFill(value){
-  		this.crontabValue = value;
-  	}
-  },
-  components: {
-    Crontab
-  }
+const crontabValue = ref('')
+const showCrontab = ref(false)
+
+const changeShow = () => {
+	showCrontab.value = !showCrontab.value
+}
+
+const crontabFill = (value) => {
+	crontabValue.value = value
 }
 </script>
+
 <style>
 	html,body,div,input,button,ul,li {
 		padding: 0;

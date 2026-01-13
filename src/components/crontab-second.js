@@ -6,14 +6,12 @@ export default {
 			cycle02:2,
 			average01:0,
 			average02:1,
-			checkboxList:[],
-			checkNum:this.$options.propsData.check
+			checkboxList:[]
 		}
 	},
 	name: 'crontab-second',
 	props:['check','init'],
 	methods: {
-		// 单选按钮值变化时
 		radioChange(){
 			switch(this.radioValue){
 				case '1':
@@ -30,19 +28,16 @@ export default {
 					break;
 			}
 		},
-		// 周期两个值变化时
 		cycleChange(){
 			if(this.radioValue==='2'){
 				this.$emit('updata','second',this.cycleTotal);
 			}
 		},
-		// 平均两个值变化时
 		averageChange(){
 			if(this.radioValue==='3'){
 				this.$emit('updata','second',this.averageTotal);
 			}
 		},
-		// checkbox值变化时
 		checkboxChange(){
 			if(this.radioValue==='4'){
 				this.$emit('updata','second',this.checkboxString);
@@ -56,26 +51,22 @@ export default {
 		'checkboxString':'checkboxChange'
 	},
 	computed: {
-		// 计算两个周期值
-		cycleTotal:function(){
-			this.cycle01 = this.checkNum(this.cycle01,0,59)
-			this.cycle02 = this.checkNum(this.cycle02,0,59)
+		cycleTotal(){
+			this.cycle01 = this.check(this.cycle01,0,59)
+			this.cycle02 = this.check(this.cycle02,0,59)
 			return this.cycle01+'-'+this.cycle02;
 		},
-		// 计算平均用到的值
-		averageTotal:function(){
-			this.average01 = this.checkNum(this.average01,0,59)
-			this.average02 = this.checkNum(this.average02,1,59)
+		averageTotal(){
+			this.average01 = this.check(this.average01,0,59)
+			this.average02 = this.check(this.average02,1,59)
 			return this.average01+'/'+this.average02;
 		},
-		// 计算勾选的checkbox值合集
-		checkboxString:function(){
+		checkboxString(){
 			let str = this.checkboxList.join();
 			return str===''?'*':str;
 		}
 	},
-  mounted: function() {
-    // 初始化值
+  mounted() {
     let cycleArr = this.init.split('-');
     if(cycleArr.length === 2){
       this.radioValue = '2';

@@ -28,30 +28,22 @@ export default {
 	name: 'crontab',
   props: {
     render: {
-      type: Boolean || String,
-      default: function () {
-        return true;
-      }
+      type: [Boolean, String],
+      default: true
     },
     value: {
       type: String,
-      default: function () {
-        return ''
-      }
+      default: ''
     }
   },
 	methods: {
-		// tab切换值
 		tabCheck(index){
 			this.tabActive = index;
 		},
-		// 由子组件触发，更改表达式组成的字段值
 		updataContabValue(name,value){
 			this.contabValueObj[name] = value;
 		},
-		// 表单选项的子组件校验数字格式（通过-props传递）
 		checkNumber(value,minLimit,maxLimit){
-			//检查必须为整数
 			value = Math.floor(value);
 			if(value < minLimit){
 				value = minLimit
@@ -60,28 +52,27 @@ export default {
 			}
 			return value;
 		},
-		// 隐藏弹窗
 		hidePopup(){
 			this.$emit('hide');
 		},
-		// 填充表达式
 		submitFill(){
 			this.$emit('fill',this.contabValueString);
 			this.hidePopup();
 		}
 	},
 	computed: {
-		contabValueString:function(){
+		contabValueString(){
 			let obj = this.contabValueObj;
 			let str = obj.second + " " + obj.min + " " + obj.hour + " " + obj.day + " " + obj.mouth + " " + obj.week + (obj.year===""?"":" "+obj.year)
 			return str;
 		}
 	},
   watch:{
-    contabValueString:function (value) {
+    contabValueString(value) {
       this.$emit('input',value);
+      this.$emit('update:modelValue',value);
     },
-    render: function (value) {
+    render(value) {
       if ((value === true || value === "true") && !this.inited) {
         this.inited = true;
       }
@@ -97,7 +88,7 @@ export default {
 		CrontabYear,
 		CrontabResult
 	},
-	mounted: function() {
+	mounted() {
     this.inited = (this.render === true || this.render === 'true');
     if (this.value === '') {
       this.$emit('input', this.contabValueString);
