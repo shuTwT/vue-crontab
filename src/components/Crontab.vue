@@ -1,13 +1,13 @@
 <template>
-	<div class="popup-warp" v-if="inited">
-		<div class="popup-main">
-			<ul class="popup-title">
+	<div class="crontab-warp" v-if="inited">
+		<div class="crontab-main">
+			<ul class="crontab-title">
 				<li>规则类型</li>
 				<li v-for='(item, index) of tabTitles' :class='{ on: index === tabActive }' @click='tabCheck(index)'>{{
 					item }}
 				</li>
 			</ul>
-			<ul class="popup-body">
+			<ul class="crontab-body">
 				<CrontabSecond :class='{ on: tabActive === 0 }' :init="contabValueObj.second"
 					@updata='updataContabValue' :check='checkNumber'></CrontabSecond>
 				<CrontabMin :class='{ on: tabActive === 1 }' :init="contabValueObj.min" @updata='updataContabValue'
@@ -23,8 +23,8 @@
 				<CrontabYear :class='{ on: tabActive === 6 }' :init="contabValueObj.year" @updata='updataContabValue'
 					:check='checkNumber'></CrontabYear>
 			</ul>
-			<div class="popup-result">
-				<p class="title">时间表达式</p>
+			<div class="crontab-result">
+				<p class="crontab-result__title">时间表达式</p>
 				<table>
 					<thead>
 						<tr>
@@ -48,7 +48,7 @@
 				</table>
 			</div>
 			<CrontabResult :ex='contabValueString'></CrontabResult>
-			<div class="popup-btns">
+			<div class="crontab-btns">
 				<button type="button" @click='submitFill'>确定</button>
 				<button type="button" @click='hidePopup'>取消</button>
 			</div>
@@ -138,7 +138,7 @@ const tabActive = ref(0)
 /**
  * 当前索引（未使用，保留用于兼容性）
  */
-const myindex = ref(0)
+// const myindex = ref(0)
 
 /**
  * Cron 表达式各字段的当前值
@@ -272,6 +272,186 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
 @import '../assets/popup.css';
+
+.crontab-warp {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--crontab-color-overlay);
+}
+
+.crontab-main {
+	position: relative;
+	width: var(--crontab-width-main);
+	height: var(--crontab-height-main);
+	top: 50%;
+	margin: var(--crontab-margin-top-main) auto 0;
+	background: var(--crontab-color-background);
+	border-radius: var(--crontab-border-radius);
+	font-size: var(--crontab-font-size-base);
+	overflow: hidden;
+}
+
+.crontab-title {
+	overflow: hidden;
+	line-height: var(--crontab-line-height-title);
+	padding-top: var(--crontab-margin-top-title);
+	background: var(--crontab-color-title-background);
+}
+
+.crontab-title li {
+	float: left;
+	width: var(--crontab-width-tab);
+	margin: 0 var(--crontab-spacing-xs);
+	display: inline;
+	text-align: center;
+	border-top-left-radius: var(--crontab-border-radius-tab);
+	border-top-right-radius: var(--crontab-border-radius-tab);
+}
+
+.crontab-title li:first-child {
+	width: var(--crontab-width-tab-first);
+}
+
+.crontab-title li:not(:first-child):hover {
+	background: var(--crontab-color-title-hover);
+	cursor: pointer;
+	transition: background-color var(--crontab-transition-duration) var(--crontab-transition-timing);
+}
+
+.crontab-title .on,
+.crontab-title li.on:hover {
+	background: var(--crontab-color-title-active);
+}
+
+.crontab-body {
+	padding: var(--crontab-padding-body);
+	line-height: var(--crontab-line-height-base);
+	height: var(--crontab-height-body);
+}
+
+.crontab-body li {
+	display: none;
+}
+
+.crontab-body .on {
+	display: block;
+}
+
+.crontab-body input[type="radio"] {
+	position: relative;
+	top: var(--crontab-position-radio-top);
+	margin-right: var(--crontab-margin-radio);
+}
+
+.crontab-body input[type="number"] {
+	margin: var(--crontab-margin-input);
+	padding: var(--crontab-padding-input);
+	width: var(--crontab-width-input);
+	color: var(--crontab-color-text-secondary);
+}
+
+.crontab-body input[type="checkbox"] {
+	position: relative;
+	top: var(--crontab-position-checkbox-top);
+	margin: var(--crontab-margin-checkbox);
+}
+
+.crontab-input-warp {
+	margin-top: var(--crontab-margin-top-input-warp);
+}
+
+.crontab-check-warp {
+	width: var(--crontab-width-check-warp);
+	padding-left: var(--crontab-margin-left-check-warp);
+	overflow: hidden;
+}
+
+.crontab-check-warp label {
+	float: left;
+	width: var(--crontab-width-check-label);
+}
+
+.crontab-check-short label {
+	width: var(--crontab-width-check-label-short);
+}
+
+.crontab-result {
+	line-height: var(--crontab-line-height-base);
+	margin: var(--crontab-margin-top-result) var(--crontab-spacing-lg) 0;
+	padding: var(--crontab-padding-result);
+	border: 1px solid var(--crontab-color-border);
+	position: relative;
+}
+
+.crontab-result__title {
+	position: absolute;
+	top: var(--crontab-position-title-top);
+	left: 50%;
+	width: 140px;
+	font-size: var(--crontab-font-size-title);
+	margin-left: var(--crontab-margin-left-title);
+	text-align: center;
+	line-height: 30px;
+	background: var(--crontab-color-background);
+}
+
+.crontab-result table {
+	text-align: center;
+	width: 100%;
+	margin: 0 auto;
+}
+
+.crontab-result table span {
+	display: block;
+	width: 100%;
+	font-family: arial;
+	line-height: var(--crontab-line-height-cell);
+	height: var(--crontab-height-cell);
+	white-space: nowrap;
+	overflow: hidden;
+	border: 1px solid var(--crontab-color-border-light);
+}
+
+.crontab-result-scroll {
+	font-size: var(--crontab-font-size-base);
+	line-height: var(--crontab-line-height-base);
+	height: var(--crontab-height-result-scroll);
+	overflow-y: scroll;
+}
+
+.crontab-btns {
+	padding-top: var(--crontab-margin-top-btns);
+	text-align: center;
+}
+
+.crontab-btns button {
+	height: 30px;
+	width: var(--crontab-width-btn);
+	margin: 0 var(--crontab-spacing-sm);
+	background-color: var(--crontab-color-title-background);
+	border: 1px solid var(--crontab-color-border-light);
+	border-radius: var(--crontab-border-radius);
+	color: var(--crontab-color-text-primary);
+	cursor: pointer;
+	transition: all var(--crontab-transition-duration) var(--crontab-transition-timing);
+}
+
+.crontab-btns button:hover {
+	background-color: var(--crontab-color-title-hover);
+	border-color: var(--crontab-color-border);
+}
+
+.crontab-btns button:first-child {
+	background-color: var(--crontab-color-text-secondary);
+	color: var(--crontab-color-background);
+}
+
+.crontab-btns button:first-child:hover {
+	background-color: var(--crontab-color-text-primary);
+}
 </style>

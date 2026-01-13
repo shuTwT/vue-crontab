@@ -1,7 +1,7 @@
 <template>
-	<div class="popup-result">
-		<p class="title">最近5次运行时间</p>
-		<ul class="popup-result-scroll">
+	<div class="crontab-result">
+		<p class="crontab-result__title">最近5次运行时间</p>
+		<ul class="crontab-result__scroll">
 			<template v-if='isShow'>
 				<li  v-for='item in resultList'>{{item}}</li>
 			</template>

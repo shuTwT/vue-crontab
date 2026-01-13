@@ -28,8 +28,10 @@
   "devDependencies": {
     "@types/node": "^25.0.7",
     "@vitejs/plugin-vue": "^5.0.0",
-    "typescript": "^5.0.0",
+    "element-plus": "^2.13.1",
+    "typescript": "^5.8.2",
     "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.5.4",
     "vue-tsc": "^2.0.0"
   },
   "peerDependencies": {

@@ -11,7 +11,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import Crontab from './components/Crontab.vue'
+import {Crontab} from './lib'
 
 const crontabValue = ref('')
 const showCrontab = ref(false)
