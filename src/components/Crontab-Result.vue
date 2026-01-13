@@ -168,3 +168,158 @@ onMounted(() => {
 	expressionChange()
 })
 </script>
+
+<style scoped>
+/* 结果组件样式 */
+.crontab-result {
+	margin: var(--crontab-margin-top-result) var(--crontab-spacing-lg) 0;
+	padding: var(--crontab-padding-result);
+	border: 1px solid var(--crontab-color-border);
+	background: var(--crontab-color-surface);
+	border-radius: var(--crontab-border-radius-md);
+	transition: all var(--crontab-transition-all);
+}
+
+.crontab-result:hover {
+	border-color: var(--crontab-color-border-input);
+	box-shadow: var(--crontab-shadow-sm);
+}
+
+/* 结果标题样式 */
+.crontab-result__title {
+	position: absolute;
+	top: var(--crontab-position-title-top);
+	left: 50%;
+	transform: translateX(-50%);
+	width: auto;
+	padding: 0 var(--crontab-spacing-lg);
+	font-size: var(--crontab-font-size-sm);
+	font-weight: var(--crontab-font-weight-semibold);
+	margin: 0;
+	text-align: center;
+	line-height: 28px;
+	background: var(--crontab-color-surface);
+	color: var(--crontab-color-text-primary);
+	border-radius: var(--crontab-border-radius-full);
+	border: 1px solid var(--crontab-color-border);
+	box-shadow: var(--crontab-shadow-sm);
+}
+
+/* 滚动区域样式 */
+.crontab-result__scroll {
+	font-size: var(--crontab-font-size-sm);
+	line-height: var(--crontab-line-height-lg);
+	height: var(--crontab-height-result-scroll);
+	overflow-y: auto;
+	padding: var(--crontab-spacing-sm);
+	margin: 0;
+	list-style: none;
+	background: var(--crontab-color-background);
+	border-radius: var(--crontab-border-radius-sm);
+	border: 1px solid var(--crontab-color-border-light);
+}
+
+/* 自定义滚动条 */
+.crontab-result__scroll::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+.crontab-result__scroll::-webkit-scrollbar-track {
+	background: var(--crontab-color-surface);
+	border-radius: var(--crontab-border-radius-full);
+}
+
+.crontab-result__scroll::-webkit-scrollbar-thumb {
+	background: var(--crontab-color-border-input);
+	border-radius: var(--crontab-border-radius-full);
+	transition: all var(--crontab-transition-all);
+}
+
+.crontab-result__scroll::-webkit-scrollbar-thumb:hover {
+	background: var(--crontab-color-border);
+}
+
+/* 列表项样式 */
+.crontab-result__scroll li {
+	padding: var(--crontab-spacing-sm) var(--crontab-spacing-lg);
+	margin: 0;
+	color: var(--crontab-color-text-secondary);
+	border-radius: var(--crontab-border-radius-sm);
+	transition: all var(--crontab-transition-all);
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	word-break: break-all;
+	position: relative;
+	overflow: hidden;
+}
+
+/* 列表项悬停效果 */
+.crontab-result__scroll li:hover {
+	background: var(--crontab-color-surface-hover);
+	color: var(--crontab-color-text-primary);
+	transform: translateX(4px);
+}
+
+/* 列表项奇数行样式 */
+.crontab-result__scroll li:nth-child(odd) {
+	background: var(--crontab-color-surface);
+}
+
+.crontab-result__scroll li:nth-child(odd):hover {
+	background: var(--crontab-color-surface-hover);
+}
+
+/* 加载状态样式 */
+.crontab-result__scroll li:contains('计算结果中...') {
+	color: var(--crontab-color-info);
+	font-style: italic;
+	text-align: center;
+	background: var(--crontab-color-background);
+}
+
+/* 错误状态样式 */
+.crontab-result__scroll li:contains('无效的 Cron 表达式') {
+	color: var(--crontab-color-danger);
+	background: rgba(239, 68, 68, 0.05);
+	border-left: 3px solid var(--crontab-color-danger);
+}
+
+.crontab-result__scroll li:contains('没有达到条件的结果') {
+	color: var(--crontab-color-warning);
+	background: rgba(245, 158, 11, 0.05);
+	border-left: 3px solid var(--crontab-color-warning);
+}
+
+/* 结果数量提示样式 */
+.crontab-result__scroll li:last-child:contains('最近100年内只有上面') {
+	color: var(--crontab-color-info);
+	font-size: var(--crontab-font-size-xs);
+	font-style: italic;
+	text-align: center;
+	background: rgba(59, 130, 246, 0.05);
+	border-left: 3px solid var(--crontab-color-info);
+}
+
+/* 淡入动画 */
+.crontab-result__scroll li {
+	animation: fadeIn var(--crontab-transition-duration) var(--crontab-transition-timing);
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* 延迟动画 */
+.crontab-result__scroll li:nth-child(1) { animation-delay: 0.05s; }
+.crontab-result__scroll li:nth-child(2) { animation-delay: 0.1s; }
+.crontab-result__scroll li:nth-child(3) { animation-delay: 0.15s; }
+.crontab-result__scroll li:nth-child(4) { animation-delay: 0.2s; }
+.crontab-result__scroll li:nth-child(5) { animation-delay: 0.25s; }
+</style>

@@ -1,4 +1,4 @@
 import Crontab from './components/Crontab.vue'
-import "./assets/popup.css"
+import "./assets/global.css"
 
 export { Crontab }

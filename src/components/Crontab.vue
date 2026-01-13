@@ -1,27 +1,96 @@
 <template>
-	<div class="crontab-warp" v-if="inited">
+	<div class="crontab-warp" v-if="inited" role="dialog" aria-modal="true" aria-labelledby="crontab-title">
 		<div class="crontab-main">
-			<ul class="crontab-title">
-				<li>规则类型</li>
-				<li v-for='(item, index) of tabTitles' :class='{ on: index === tabActive }' @click='tabCheck(index)'>{{
-					item }}
+			<ul class="crontab-title" role="tablist" aria-label="时间维度选择">
+				<li id="crontab-title" role="presentation">规则类型</li>
+				<li 
+					v-for='(item, index) of tabTitles' 
+					:key="index"
+					:id="`tab-${index}`"
+					:class='{ on: index === tabActive }' 
+					@click='tabCheck(index)'
+					@keydown.enter='tabCheck(index)'
+					@keydown.space='tabCheck(index)'
+					role="tab"
+					:aria-selected="index === tabActive"
+					:aria-controls="`tabpanel-${index}`"
+					tabindex="0"
+				>{{ item }}
 				</li>
 			</ul>
 			<ul class="crontab-body">
-				<CrontabSecond :class='{ on: tabActive === 0 }' :init="contabValueObj.second"
-					@updata='updataContabValue' :check='checkNumber'></CrontabSecond>
-				<CrontabMin :class='{ on: tabActive === 1 }' :init="contabValueObj.min" @updata='updataContabValue'
-					:check='checkNumber'></CrontabMin>
-				<CrontabHour :class='{ on: tabActive === 2 }' :init="contabValueObj.hour" @updata='updataContabValue'
-					:check='checkNumber'></CrontabHour>
-				<CrontabDay :class='{ on: tabActive === 3 }' :init="contabValueObj.day" @updata='updataContabValue'
-					:check='checkNumber' :week='contabValueObj.week'></CrontabDay>
-				<CrontabMouth :class='{ on: tabActive === 4 }' :init="contabValueObj.mouth" @updata='updataContabValue'
-					:check='checkNumber'></CrontabMouth>
-				<CrontabWeek :class='{ on: tabActive === 5 }' :init="contabValueObj.week" @updata='updataContabValue'
-					:check='checkNumber' :day='contabValueObj.day'></CrontabWeek>
-				<CrontabYear :class='{ on: tabActive === 6 }' :init="contabValueObj.year" @updata='updataContabValue'
-					:check='checkNumber'></CrontabYear>
+				<CrontabSecond 
+					:class='{ on: tabActive === 0 }' 
+					:init="contabValueObj.second"
+					@updata='updataContabValue' 
+					:check='checkNumber'
+					role="tabpanel"
+					:id="`tabpanel-0`"
+					:aria-labelledby="`tab-0`"
+					:aria-hidden="tabActive !== 0"
+				></CrontabSecond>
+				<CrontabMin 
+					:class='{ on: tabActive === 1 }' 
+					:init="contabValueObj.min" 
+					@updata='updataContabValue'
+					:check='checkNumber'
+					role="tabpanel"
+					:id="`tabpanel-1`"
+					:aria-labelledby="`tab-1`"
+					:aria-hidden="tabActive !== 1"
+				></CrontabMin>
+				<CrontabHour 
+					:class='{ on: tabActive === 2 }' 
+					:init="contabValueObj.hour" 
+					@updata='updataContabValue'
+					:check='checkNumber'
+					role="tabpanel"
+					:id="`tabpanel-2`"
+					:aria-labelledby="`tab-2`"
+					:aria-hidden="tabActive !== 2"
+				></CrontabHour>
+				<CrontabDay 
+					:class='{ on: tabActive === 3 }' 
+					:init="contabValueObj.day" 
+					@updata='updataContabValue'
+					:check='checkNumber' 
+					:week='contabValueObj.week'
+					role="tabpanel"
+					:id="`tabpanel-3`"
+					:aria-labelledby="`tab-3`"
+					:aria-hidden="tabActive !== 3"
+				></CrontabDay>
+				<CrontabMouth 
+					:class='{ on: tabActive === 4 }' 
+					:init="contabValueObj.mouth" 
+					@updata='updataContabValue'
+					:check='checkNumber'
+					role="tabpanel"
+					:id="`tabpanel-4`"
+					:aria-labelledby="`tab-4`"
+					:aria-hidden="tabActive !== 4"
+				></CrontabMouth>
+				<CrontabWeek 
+					:class='{ on: tabActive === 5 }' 
+					:init="contabValueObj.week" 
+					@updata='updataContabValue'
+					:check='checkNumber' 
+					:day='contabValueObj.day'
+					role="tabpanel"
+					:id="`tabpanel-5`"
+					:aria-labelledby="`tab-5`"
+					:aria-hidden="tabActive !== 5"
+				></CrontabWeek>
+				<CrontabYear 
+					:class='{ on: tabActive === 6 }' 
+					:init="contabValueObj.year" 
+					@updata='updataContabValue'
+					:check='checkNumber'
+					role="tabpanel"
+					:id="`tabpanel-6`"
+					:aria-labelledby="`tab-6`"
+					:aria-hidden="tabActive !== 6"
+				></CrontabYear>
 			</ul>
 			<div class="crontab-result">
 				<p class="crontab-result__title">时间表达式</p>
@@ -273,8 +342,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@import '../assets/popup.css';
+/* 全局重置和基础样式 */
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
 
+
+/* 主容器样式 */
 .crontab-warp {
 	position: fixed;
 	top: 0;
@@ -282,176 +358,515 @@ onMounted(() => {
 	width: 100%;
 	height: 100%;
 	background: var(--crontab-color-overlay);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: var(--crontab-z-index-modal);
+	backdrop-filter: blur(4px);
+	animation: fadeIn var(--crontab-transition-duration) var(--crontab-transition-timing);
 }
 
+/* 主容器淡出动画 */
+.crontab-warp.fade-out {
+	animation: fadeOut var(--crontab-transition-duration) var(--crontab-transition-timing) forwards;
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+/* 弹窗主体样式 */
 .crontab-main {
 	position: relative;
 	width: var(--crontab-width-main);
+	max-width: 95%;
+	max-height: 95vh;
 	height: var(--crontab-height-main);
-	top: 50%;
-	margin: var(--crontab-margin-top-main) auto 0;
 	background: var(--crontab-color-background);
-	border-radius: var(--crontab-border-radius);
+	border-radius: var(--crontab-border-radius-lg);
 	font-size: var(--crontab-font-size-base);
 	overflow: hidden;
+	box-shadow: var(--crontab-shadow-xl);
+	transition: all var(--crontab-transition-all);
+	display: flex;
+	flex-direction: column;
+	animation: slideUp var(--crontab-transition-duration) var(--crontab-transition-timing);
 }
 
+/* 弹窗主体淡出动画 */
+.crontab-main.fade-out {
+	animation: slideDown var(--crontab-transition-duration) var(--crontab-transition-timing) forwards;
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px) scale(0.95);
+		box-shadow: var(--crontab-shadow-md);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		box-shadow: var(--crontab-shadow-xl);
+	}
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		box-shadow: var(--crontab-shadow-xl);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(20px) scale(0.95);
+		box-shadow: var(--crontab-shadow-md);
+	}
+}
+
+/* 标题栏样式 */
 .crontab-title {
-	overflow: hidden;
+	display: flex;
+	align-items: center;
+	background: var(--crontab-color-surface);
+	border-bottom: 1px solid var(--crontab-color-border);
 	line-height: var(--crontab-line-height-title);
-	padding-top: var(--crontab-margin-top-title);
-	background: var(--crontab-color-title-background);
+	padding: 0 var(--crontab-spacing-lg);
+	font-weight: var(--crontab-font-weight-semibold);
+	color: var(--crontab-color-text-primary);
+	gap: var(--crontab-spacing-md);
 }
 
 .crontab-title li {
-	float: left;
-	width: var(--crontab-width-tab);
-	margin: 0 var(--crontab-spacing-xs);
-	display: inline;
+	flex-shrink: 0;
+	cursor: pointer;
+	padding: var(--crontab-spacing-sm) var(--crontab-spacing-md);
+	border-radius: var(--crontab-border-radius-md);
+	transition: all var(--crontab-transition-all);
+	color: var(--crontab-color-text-secondary);
+	font-size: var(--crontab-font-size-sm);
+	font-weight: var(--crontab-font-weight-medium);
+	position: relative;
+	overflow: hidden;
+	min-width: var(--crontab-width-tab);
 	text-align: center;
-	border-top-left-radius: var(--crontab-border-radius-tab);
-	border-top-right-radius: var(--crontab-border-radius-tab);
 }
 
 .crontab-title li:first-child {
+	flex-shrink: 0;
+	cursor: default;
+	color: var(--crontab-color-text-primary);
+	font-weight: var(--crontab-font-weight-semibold);
 	width: var(--crontab-width-tab-first);
+	text-align: left;
+	padding: var(--crontab-spacing-sm) 0;
+	border-radius: 0;
+	background: transparent;
 }
 
 .crontab-title li:not(:first-child):hover {
-	background: var(--crontab-color-title-hover);
-	cursor: pointer;
-	transition: background-color var(--crontab-transition-duration) var(--crontab-transition-timing);
+	background: var(--crontab-color-surface-hover);
+	color: var(--crontab-color-text-primary);
+	transform: translateY(-1px);
 }
 
 .crontab-title .on,
 .crontab-title li.on:hover {
-	background: var(--crontab-color-title-active);
+	background: var(--crontab-color-primary);
+	color: var(--crontab-color-background);
+	transform: translateY(0);
+	min-width: var(--crontab-width-tab);
 }
 
+/* 内容区域样式 */
 .crontab-body {
 	padding: var(--crontab-padding-body);
 	line-height: var(--crontab-line-height-base);
 	height: var(--crontab-height-body);
+	overflow-y: auto;
+	flex: 1;
+	background: var(--crontab-color-background);
 }
 
 .crontab-body li {
 	display: none;
+	opacity: 0;
+	transform: translateY(10px);
+	transition: all var(--crontab-transition-duration) var(--crontab-transition-timing);
 }
 
 .crontab-body .on {
 	display: block;
+	opacity: 1;
+	transform: translateY(0);
+	animation: slideInFromBottom var(--crontab-transition-duration) var(--crontab-transition-timing);
 }
 
-.crontab-body input[type="radio"] {
-	position: relative;
-	top: var(--crontab-position-radio-top);
-	margin-right: var(--crontab-margin-radio);
+@keyframes slideInFromBottom {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
-.crontab-body input[type="number"] {
-	margin: var(--crontab-margin-input);
-	padding: var(--crontab-padding-input);
-	width: var(--crontab-width-input);
-	color: var(--crontab-color-text-secondary);
+/* 淡入动画 */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
-.crontab-body input[type="checkbox"] {
-	position: relative;
-	top: var(--crontab-position-checkbox-top);
-	margin: var(--crontab-margin-checkbox);
-}
-
-.crontab-input-warp {
-	margin-top: var(--crontab-margin-top-input-warp);
-}
-
-.crontab-check-warp {
-	width: var(--crontab-width-check-warp);
-	padding-left: var(--crontab-margin-left-check-warp);
-	overflow: hidden;
-}
-
-.crontab-check-warp label {
-	float: left;
-	width: var(--crontab-width-check-label);
-}
-
-.crontab-check-short label {
-	width: var(--crontab-width-check-label-short);
-}
-
+/* 结果展示区域样式 */
 .crontab-result {
 	line-height: var(--crontab-line-height-base);
 	margin: var(--crontab-margin-top-result) var(--crontab-spacing-lg) 0;
 	padding: var(--crontab-padding-result);
 	border: 1px solid var(--crontab-color-border);
 	position: relative;
+	background: var(--crontab-color-surface);
+	border-radius: var(--crontab-border-radius-md);
+	transition: all var(--crontab-transition-all);
+}
+
+.crontab-result:hover {
+	border-color: var(--crontab-color-border-input);
+	box-shadow: var(--crontab-shadow-sm);
 }
 
 .crontab-result__title {
 	position: absolute;
 	top: var(--crontab-position-title-top);
 	left: 50%;
-	width: 140px;
-	font-size: var(--crontab-font-size-title);
-	margin-left: var(--crontab-margin-left-title);
+	transform: translateX(-50%);
+	width: auto;
+	padding: 0 var(--crontab-spacing-lg);
+	font-size: var(--crontab-font-size-sm);
+	font-weight: var(--crontab-font-weight-semibold);
+	margin-left: 0;
 	text-align: center;
-	line-height: 30px;
-	background: var(--crontab-color-background);
+	line-height: 28px;
+	background: var(--crontab-color-surface);
+	color: var(--crontab-color-text-primary);
+	border-radius: var(--crontab-border-radius-full);
+	border: 1px solid var(--crontab-color-border);
+	box-shadow: var(--crontab-shadow-sm);
 }
 
 .crontab-result table {
-	text-align: center;
 	width: 100%;
-	margin: 0 auto;
+	border-collapse: collapse;
+	font-size: var(--crontab-font-size-sm);
+	overflow: hidden;
+	border-radius: var(--crontab-border-radius-sm);
+}
+
+.crontab-result th {
+	background: var(--crontab-color-surface);
+	color: var(--crontab-color-text-secondary);
+	font-weight: var(--crontab-font-weight-medium);
+	padding: var(--crontab-spacing-sm) var(--crontab-spacing-xs);
+	text-align: center;
+	font-size: var(--crontab-font-size-xs);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	border-bottom: 1px solid var(--crontab-color-border);
+}
+
+.crontab-result td {
+	padding: var(--crontab-spacing-sm) var(--crontab-spacing-xs);
+	text-align: center;
+	border-bottom: 1px solid var(--crontab-color-border-light);
 }
 
 .crontab-result table span {
 	display: block;
 	width: 100%;
-	font-family: arial;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	line-height: var(--crontab-line-height-cell);
 	height: var(--crontab-height-cell);
 	white-space: nowrap;
 	overflow: hidden;
-	border: 1px solid var(--crontab-color-border-light);
+	text-overflow: ellipsis;
+	background: var(--crontab-color-background);
+	border-radius: var(--crontab-border-radius-sm);
+	padding: 0 var(--crontab-spacing-sm);
+	color: var(--crontab-color-text-primary);
+	transition: all var(--crontab-transition-all);
+	border: 1px solid transparent;
 }
 
-.crontab-result-scroll {
-	font-size: var(--crontab-font-size-base);
-	line-height: var(--crontab-line-height-base);
-	height: var(--crontab-height-result-scroll);
-	overflow-y: scroll;
+.crontab-result table span:hover {
+	background: var(--crontab-color-surface-hover);
+	border-color: var(--crontab-color-border-input);
+	color: var(--crontab-color-primary);
+	box-shadow: inset 0 0 0 1px var(--crontab-color-primary);
 }
 
+/* 底部按钮区域样式 */
 .crontab-btns {
-	padding-top: var(--crontab-margin-top-btns);
+	padding: var(--crontab-spacing-xl) var(--crontab-spacing-2xl);
 	text-align: center;
+	border-top: 1px solid var(--crontab-color-border);
+	background: var(--crontab-color-surface);
+	display: flex;
+	gap: var(--crontab-spacing-lg);
+	justify-content: center;
 }
 
+/* 按钮样式 */
 .crontab-btns button {
-	height: 30px;
+	height: 40px;
 	width: var(--crontab-width-btn);
 	margin: 0 var(--crontab-spacing-sm);
-	background-color: var(--crontab-color-title-background);
-	border: 1px solid var(--crontab-color-border-light);
-	border-radius: var(--crontab-border-radius);
+	border: none;
+	border-radius: var(--crontab-border-radius-md);
 	color: var(--crontab-color-text-primary);
 	cursor: pointer;
-	transition: all var(--crontab-transition-duration) var(--crontab-transition-timing);
+	transition: all var(--crontab-transition-all);
+	font-size: var(--crontab-font-size-sm);
+	font-weight: var(--crontab-font-weight-medium);
+	font-family: var(--crontab-font-family);
+	outline: none;
+	position: relative;
+	overflow: hidden;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	user-select: none;
+	white-space: nowrap;
+	background: var(--crontab-color-surface);
+	border: 1px solid var(--crontab-color-border);
 }
 
 .crontab-btns button:hover {
-	background-color: var(--crontab-color-title-hover);
-	border-color: var(--crontab-color-border);
+	background: var(--crontab-color-surface-hover);
+	border-color: var(--crontab-color-border-focus);
+	transform: translateY(-2px);
+	box-shadow: var(--crontab-shadow-md);
 }
 
+.crontab-btns button:active {
+	transform: translateY(0);
+	box-shadow: var(--crontab-shadow-sm);
+}
+
+.crontab-btns button:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* 主要按钮样式 */
 .crontab-btns button:first-child {
-	background-color: var(--crontab-color-text-secondary);
+	background: var(--crontab-color-primary);
 	color: var(--crontab-color-background);
+	border-color: var(--crontab-color-primary);
 }
 
 .crontab-btns button:first-child:hover {
-	background-color: var(--crontab-color-text-primary);
+	background: var(--crontab-color-primary-hover);
+	border-color: var(--crontab-color-primary-hover);
+	box-shadow: var(--crontab-shadow-lg);
+}
+
+.crontab-btns button:first-child:active {
+	background: var(--crontab-color-primary-active);
+	border-color: var(--crontab-color-primary-active);
+	box-shadow: var(--crontab-shadow-md);
+}
+
+.crontab-btns button:first-child:focus {
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+/* 次要按钮样式 */
+.crontab-btns button:last-child {
+	background: var(--crontab-color-background);
+	color: var(--crontab-color-text-primary);
+	border: 1px solid var(--crontab-color-border);
+}
+
+.crontab-btns button:last-child:hover {
+	background: var(--crontab-color-surface);
+	border-color: var(--crontab-color-border-focus);
+}
+
+.crontab-btns button:last-child:active {
+	background: var(--crontab-color-surface-active);
+	border-color: var(--crontab-color-border);
+}
+
+/* 按钮禁用样式 */
+.crontab-btns button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.crontab-btns button:disabled:hover {
+	transform: none;
+	box-shadow: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+	.crontab-main {
+		width: 95%;
+		height: auto;
+		max-height: 90vh;
+		margin: 20px auto;
+		top: 0;
+		transform: none;
+	}
+	
+	.crontab-title {
+		padding: var(--crontab-spacing-xs) var(--crontab-spacing-md);
+		flex-wrap: wrap;
+		gap: var(--crontab-spacing-xs);
+		justify-content: flex-start;
+	}
+	
+	.crontab-title li {
+		padding: var(--crontab-spacing-xs) var(--crontab-spacing-sm);
+		font-size: var(--crontab-font-size-xs);
+		min-width: auto;
+		flex: 1;
+		text-align: center;
+		margin: 0;
+	}
+	
+	.crontab-title li:first-child {
+		width: 100%;
+		text-align: left;
+		padding: var(--crontab-spacing-xs) 0;
+		border-bottom: 1px solid var(--crontab-color-border);
+		margin-bottom: var(--crontab-spacing-xs);
+	}
+	
+	.crontab-body {
+		padding: var(--crontab-spacing-lg) var(--crontab-spacing-md);
+		height: auto;
+		max-height: 300px;
+	}
+	
+	.crontab-check-warp {
+		width: 100%;
+		padding-left: 0;
+		gap: var(--crontab-spacing-xs);
+	}
+	
+	.crontab-check-warp label {
+		width: calc(33.333% - var(--crontab-spacing-xs));
+		font-size: var(--crontab-font-size-xs);
+	}
+	
+	.crontab-check-short label {
+		width: calc(50% - var(--crontab-spacing-xs));
+	}
+	
+	.crontab-result {
+		margin: var(--crontab-spacing-lg) var(--crontab-spacing-md) 0;
+		padding: var(--crontab-spacing-md);
+	}
+	
+	.crontab-result table {
+		overflow-x: auto;
+		display: block;
+	}
+	
+	.crontab-result th,
+	.crontab-result td {
+		padding: var(--crontab-spacing-xs);
+		font-size: var(--crontab-font-size-xs);
+		white-space: nowrap;
+	}
+	
+	.crontab-btns {
+		padding: var(--crontab-spacing-lg);
+		flex-direction: column;
+	}
+	
+	.crontab-btns button {
+		width: 100%;
+		margin: 0 0 var(--crontab-spacing-sm) 0;
+	}
+	
+	.crontab-btns button:last-child {
+		margin-bottom: 0;
+	}
+}
+
+@media (max-width: 480px) {
+	.crontab-main {
+		width: 100%;
+		max-width: 100%;
+		max-height: 100vh;
+		border-radius: 0;
+	}
+	
+	.crontab-title li {
+		padding: 0 var(--crontab-spacing-xs);
+		font-size: var(--crontab-font-size-xs);
+	}
+	
+	.crontab-check-warp label {
+		width: calc(50% - var(--crontab-spacing-xs));
+	}
+	
+	.crontab-check-short label {
+		width: calc(100% - var(--crontab-spacing-xs));
+	}
+	
+	.crontab-body input[type="number"] {
+		width: calc(25% - var(--crontab-spacing-xs));
+		min-width: 50px;
+	}
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+	:root {
+		--crontab-color-border: #000000;
+		--crontab-color-border-input: #000000;
+		--crontab-color-text-primary: #000000;
+		--crontab-color-text-secondary: #000000;
+	}
+	
+	.crontab-body input[type="radio"],
+	.crontab-body input[type="checkbox"] {
+		border-width: 3px;
+	}
+	
+	.crontab-body input[type="number"] {
+		border-width: 2px;
+	}
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }
 </style>

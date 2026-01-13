@@ -1,0 +1,132 @@
+:root {
+	/* 色彩系统 */
+	--crontab-color-primary: #4f46e5;
+	--crontab-color-primary-hover: #4338ca;
+	--crontab-color-primary-active: #3730a3;
+	--crontab-color-secondary: #6366f1;
+	--crontab-color-success: #10b981;
+	--crontab-color-danger: #ef4444;
+	--crontab-color-warning: #f59e0b;
+	--crontab-color-info: #3b82f6;
+	
+	--crontab-color-overlay: rgba(0, 0, 0, 0.5);
+	--crontab-color-background: #ffffff;
+	--crontab-color-surface: #f8fafc;
+	--crontab-color-surface-hover: #f1f5f9;
+	--crontab-color-surface-active: #e2e8f0;
+	--crontab-color-title-background: #ffffff;
+	--crontab-color-title-hover: #f8fafc;
+	--crontab-color-title-active: #ffffff;
+	
+	--crontab-color-text-primary: #1e293b;
+	--crontab-color-text-secondary: #64748b;
+	--crontab-color-text-tertiary: #94a3b8;
+	--crontab-color-text-disabled: #cbd5e1;
+	
+	--crontab-color-border: #e2e8f0;
+	--crontab-color-border-light: #f1f5f9;
+	--crontab-color-border-input: #cbd5e1;
+	--crontab-color-border-focus: #4f46e5;
+	
+	/* 间距系统 */
+	--crontab-spacing-xs: 4px;
+	--crontab-spacing-sm: 8px;
+	--crontab-spacing-md: 12px;
+	--crontab-spacing-lg: 16px;
+	--crontab-spacing-xl: 20px;
+	--crontab-spacing-2xl: 24px;
+	
+	/* 字体系统 */
+	--crontab-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	--crontab-font-size-xs: 11px;
+	--crontab-font-size-sm: 12px;
+	--crontab-font-size-base: 13px;
+	--crontab-font-size-lg: 14px;
+	--crontab-font-size-xl: 16px;
+	--crontab-font-size-2xl: 18px;
+	
+	--crontab-font-weight-normal: 400;
+	--crontab-font-weight-medium: 500;
+	--crontab-font-weight-semibold: 600;
+	--crontab-font-weight-bold: 700;
+	
+	/* 圆角系统 */
+	--crontab-border-radius-sm: 4px;
+	--crontab-border-radius: 6px;
+	--crontab-border-radius-md: 8px;
+	--crontab-border-radius-lg: 10px;
+	--crontab-border-radius-xl: 12px;
+	--crontab-border-radius-full: 9999px;
+	
+	/* 布局尺寸 */
+	--crontab-width-main: 680px;
+	--crontab-height-main: 720px;
+	--crontab-height-body: 300px;
+	--crontab-height-cell: 36px;
+	--crontab-height-result-scroll: 12em;
+	
+	--crontab-width-tab: 70px;
+	--crontab-width-tab-first: 100px;
+	--crontab-width-input: 70px;
+	--crontab-width-check-label: 56px;
+	--crontab-width-check-label-short: 44px;
+	--crontab-width-check-warp: 560px;
+	--crontab-width-btn: 140px;
+	
+	/* 行高系统 */
+	--crontab-line-height-xs: 16px;
+	--crontab-line-height-sm: 18px;
+	--crontab-line-height-base: 20px;
+	--crontab-line-height-lg: 24px;
+	--crontab-line-height-xl: 28px;
+	--crontab-line-height-title: 38px;
+	--crontab-line-height-cell: 36px;
+	
+	/* 边距系统 */
+	--crontab-margin-top-input-warp: 8px;
+	--crontab-margin-top-result: 20px;
+	--crontab-margin-top-btns: 24px;
+	--crontab-margin-left-check-warp: 16px;
+	--crontab-margin-top-title: 0;
+	--crontab-margin-top-main: -360px;
+	--crontab-margin-left-title: -80px;
+	--crontab-margin-input: 0 var(--crontab-spacing-xs);
+	--crontab-margin-checkbox: 0 var(--crontab-spacing-sm);
+	--crontab-margin-radio: 0 var(--crontab-spacing-sm);
+	
+	/* 内边距系统 */
+	--crontab-padding-body: var(--crontab-spacing-xl) var(--crontab-spacing-2xl) var(--crontab-spacing-lg);
+	--crontab-padding-result: var(--crontab-spacing-lg) var(--crontab-spacing-lg) var(--crontab-spacing-md);
+	--crontab-padding-input: var(--crontab-spacing-xs) var(--crontab-spacing-sm);
+	--crontab-padding-btn: var(--crontab-spacing-sm) var(--crontab-spacing-lg);
+	--crontab-padding-tab: 0 var(--crontab-spacing-md);
+	
+	/* 定位系统 */
+	--crontab-position-radio-top: 2px;
+	--crontab-position-checkbox-top: 2px;
+	--crontab-position-title-top: -28px;
+	
+	/* 过渡动画系统 */
+	--crontab-transition-duration: 0.25s;
+	--crontab-transition-duration-fast: 0.15s;
+	--crontab-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+	--crontab-transition-timing-fast: cubic-bezier(0.4, 0, 0.6, 1);
+	--crontab-transition-opacity: opacity var(--crontab-transition-duration) var(--crontab-transition-timing);
+	--crontab-transition-transform: transform var(--crontab-transition-duration) var(--crontab-transition-timing);
+	--crontab-transition-all: all var(--crontab-transition-duration) var(--crontab-transition-timing);
+	--crontab-transition-color: background-color var(--crontab-transition-duration) var(--crontab-transition-timing),
+					color var(--crontab-transition-duration) var(--crontab-transition-timing),
+					border-color var(--crontab-transition-duration) var(--crontab-transition-timing);
+	
+	/* 阴影系统 */
+	--crontab-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	--crontab-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	--crontab-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	--crontab-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	--crontab-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	
+	/* 其他 */
+	--crontab-border-radius-tab: var(--crontab-border-radius-md);
+	--crontab-z-index-modal: 1000;
+	--crontab-z-index-dropdown: 1010;
+}

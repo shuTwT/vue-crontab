@@ -232,3 +232,175 @@ onMounted(() => {
 	// 如果是 "*"，则保持默认的 radioValue = '1'（每秒模式）
 })
 </script>
+
+<style scoped>
+/* 秒组件样式 */
+.crontab-input-warp {
+	margin-top: var(--crontab-spacing-lg);
+	padding: var(--crontab-spacing-md) 0;
+	transition: all var(--crontab-transition-all);
+}
+
+.crontab-input-warp:hover {
+	background: var(--crontab-color-surface-hover);
+	border-radius: var(--crontab-border-radius-sm);
+	margin: var(--crontab-spacing-lg) -12px 0;
+	padding: var(--crontab-spacing-md) 12px;
+}
+
+/* 第一个输入组去掉上边距 */
+.crontab-input-warp:first-child {
+	margin-top: 0;
+}
+
+/* 复选框组样式 */
+.crontab-check-warp {
+	width: var(--crontab-width-check-warp);
+	max-width: 100%;
+	padding-left: var(--crontab-margin-left-check-warp);
+	overflow: hidden;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--crontab-spacing-md);
+	margin-top: var(--crontab-spacing-sm);
+	padding: var(--crontab-spacing-xs) 0;
+}
+
+.crontab-check-warp label {
+	float: left;
+	width: var(--crontab-width-check-label);
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: var(--crontab-spacing-sm) var(--crontab-spacing-md);
+	border-radius: var(--crontab-border-radius-sm);
+	transition: all var(--crontab-transition-all);
+	font-size: var(--crontab-font-size-sm);
+	color: var(--crontab-color-text-secondary);
+	line-height: var(--crontab-line-height-lg);
+}
+
+.crontab-check-warp label:hover {
+	background: var(--crontab-color-surface-hover);
+	color: var(--crontab-color-text-primary);
+	transform: translateY(-1px);
+}
+
+.crontab-check-short label {
+	width: var(--crontab-width-check-label-short);
+}
+
+/* Radio 按钮样式 */
+input[type="radio"] {
+	position: relative;
+	top: var(--crontab-position-radio-top);
+	margin-right: var(--crontab-margin-radio);
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	border: 2px solid var(--crontab-color-border-input);
+	border-radius: 50%;
+	outline: none;
+	cursor: pointer;
+	transition: all var(--crontab-transition-all);
+	background: var(--crontab-color-background);
+}
+
+input[type="radio"]:hover {
+	border-color: var(--crontab-color-primary);
+	transform: scale(1.1);
+}
+
+input[type="radio"]:checked {
+	border-color: var(--crontab-color-primary);
+	background: var(--crontab-color-primary);
+}
+
+input[type="radio"]:checked::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--crontab-color-background);
+}
+
+/* Checkbox 样式 */
+input[type="checkbox"] {
+	position: relative;
+	top: var(--crontab-position-checkbox-top);
+	margin: var(--crontab-margin-checkbox);
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	border: 2px solid var(--crontab-color-border-input);
+	border-radius: var(--crontab-border-radius-sm);
+	outline: none;
+	cursor: pointer;
+	transition: all var(--crontab-transition-all);
+	background: var(--crontab-color-background);
+}
+
+input[type="checkbox"]:hover {
+	border-color: var(--crontab-color-primary);
+	transform: scale(1.1);
+}
+
+input[type="checkbox"]:checked {
+	border-color: var(--crontab-color-primary);
+	background: var(--crontab-color-primary);
+}
+
+input[type="checkbox"]:checked::after {
+	content: '✓';
+	position: absolute;
+	top: -3px;
+	left: 1px;
+	font-size: 12px;
+	color: var(--crontab-color-background);
+	font-weight: bold;
+}
+
+/* Number Input 样式 */
+input[type="number"] {
+	margin: var(--crontab-margin-input);
+	padding: var(--crontab-padding-input);
+	width: var(--crontab-width-input);
+	color: var(--crontab-color-text-primary);
+	border: 1px solid var(--crontab-color-border-input);
+	border-radius: var(--crontab-border-radius-sm);
+	outline: none;
+	transition: all var(--crontab-transition-all);
+	font-size: var(--crontab-font-size-sm);
+	font-family: var(--crontab-font-family);
+	background: var(--crontab-color-background);
+}
+
+input[type="number"]:hover {
+	border-color: var(--crontab-color-border-focus);
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+input[type="number"]:focus {
+	border-color: var(--crontab-color-primary);
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+	color: var(--crontab-color-text-primary);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	opacity: 1;
+	background: var(--crontab-color-surface);
+	border-radius: var(--crontab-border-radius-sm);
+	cursor: pointer;
+	transition: all var(--crontab-transition-all);
+}
+
+input[type="number"]::-webkit-inner-spin-button:hover,
+input[type="number"]::-webkit-outer-spin-button:hover {
+	background: var(--crontab-color-surface-hover);
+}
+</style>
