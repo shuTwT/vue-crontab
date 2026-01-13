@@ -13,482 +13,157 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+/**
+ * CronTab 执行时间计算组件
+ * 
+ * 功能描述：
+ * 使用 cron-parser 库计算 Cron 表达式的最近5次执行时间
+ * 该组件接收一个完整的 Cron 表达式，解析并计算未来的执行时间点
+ * 
+ * 核心功能：
+ * 1. 解析 Cron 表达式：使用 cron-parser 库解析标准的 Cron 表达式
+ * 2. 计算执行时间：从当前时间开始，计算接下来的5次执行时间
+ * 3. 格式化输出：将计算结果格式化为易读的日期时间字符串
+ * 4. 错误处理：处理无效的 Cron 表达式，显示友好的错误提示
+ * 
+ * 依赖库：
+ * - cron-parser: 用于解析和计算 Cron 表达式
+ * 
+ * 支持的 Cron 表达式格式：
+ * - 标准6位格式：秒 分钟 小时 日 月 周
+ * - 扩展7位格式：秒 分钟 小时 日 月 周 年
+ * 
+ * 示例：
+ * - "0 0 12 * * ?" - 每天中午12点执行
+ * - "0 0/5 * * * ?" - 每5分钟执行一次
+ * - "0 0 12 ? * MON-FRI" - 周一到周五中午12点执行
+ */
 
+import { ref, watch, onMounted } from 'vue'
+import { CronExpressionParser } from 'cron-parser'
+
+/**
+ * 组件 Props 定义
+ * @property ex - 完整的 Cron 表达式字符串，格式如 "0 0 12 * * ?"
+ */
 const props = defineProps<{
 	ex: string
 }>()
 
-const dayRule = ref('')
-const dayRuleSup = ref<string | number[] | ''>('')
-const dateArr = ref<number[][]>([])
+/**
+ * 计算结果列表
+ * 存储计算得到的最近5次执行时间
+ */
 const resultList = ref<string[]>([])
+
+/**
+ * 是否显示计算结果
+ * true: 显示计算结果
+ * false: 显示"计算结果中..."
+ */
 const isShow = ref(false)
 
-const getIndex = (arr: number[], value: number): number => {
-	if(value <= arr[0] || value > arr[arr.length - 1]) {
-		return 0
-	} else {
-		for(let i = 0; i < arr.length - 1; i++) {
-			if(value > arr[i] && value <= arr[i + 1]) {
-				return i + 1
-			}
-		}
-	}
-	return 0
+/**
+ * 格式化日期为字符串
+ * @param date - Date 对象
+ * @returns 格式化后的日期时间字符串，格式：YYYY-MM-DD HH:mm:ss
+ */
+const formatDate = (date: Date): string => {
+	const year = date.getFullYear()
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	const hour = String(date.getHours()).padStart(2, '0')
+	const minute = String(date.getMinutes()).padStart(2, '0')
+	const second = String(date.getSeconds()).padStart(2, '0')
+	return `${year}-${month}-${day} ${hour}:${minute}:${second}`
 }
 
-const getYearArr = (rule: string | undefined, year: number) => {
-	dateArr.value[5] = getOrderArr(year, year + 100)
-	if(rule !== undefined) {
-		if(rule.indexOf('-') >= 0) {
-			dateArr.value[5] = getCycleArr(rule, year + 100, false)
-		} else if(rule.indexOf('/') >= 0) {
-			dateArr.value[5] = getAverageArr(rule, year + 100)
-		} else if(rule !== '*') {
-			dateArr.value[5] = getAssignArr(rule)
-		}
-	}
-}
-
-const getMouthArr = (rule: string) => {
-	dateArr.value[4] = getOrderArr(1, 12)
-	if(rule.indexOf('-') >= 0) {
-		dateArr.value[4] = getCycleArr(rule, 12, false)
-	} else if(rule.indexOf('/') >= 0) {
-		dateArr.value[4] = getAverageArr(rule, 12)
-	} else if(rule !== '*') {
-		dateArr.value[4] = getAssignArr(rule)
-	}
-}
-
-const getWeekArr = (rule: string) => {
-	if(dayRule.value === '' && dayRuleSup.value === ''){
-		if(rule.indexOf('-') >= 0) {
-			dayRule.value  = 'weekDay'
-			dayRuleSup.value = getCycleArr(rule, 7, false)
-		} else if(rule.indexOf('#') >= 0) {
-			dayRule.value  = 'assWeek'
-			let matchRule = rule.match(/[0-9]{1}/g)
-			dayRuleSup.value = [Number(matchRule![0]), Number(matchRule![1])]
-			dateArr.value[3] = [1]
-			if(Array.isArray(dayRuleSup.value) && dayRuleSup.value[1] === 7){
-				dayRuleSup.value[1] = 0
-			}
-		} else if(rule.indexOf('L') >= 0) {
-			dayRule.value  = 'lastWeek'
-			dayRuleSup.value = Number(rule.match(/[0-9]{1,2}/g)![0])
-			dateArr.value[3] = [31]
-			if(dayRuleSup.value === 7){
-				dayRuleSup.value = 0
-			}
-		} else if(rule !== '*' && rule !== '?') {
-			dayRule.value  = 'weekDay'
-			dayRuleSup.value = getAssignArr(rule)
-		}
-		if(dayRule.value === 'weekDay' && Array.isArray(dayRuleSup.value)){
-			for(let i =0; i<dayRuleSup.value.length; i++){
-				if(dayRuleSup.value[i] === 7){
-					dayRuleSup.value[i] = 0
-				}
-			}
-		}
-	}
-}
-
-const getDayArr = (rule: string) => {
-	dateArr.value[3] = getOrderArr(1, 31)
-	dayRule.value = ''
-	dayRuleSup.value = ''
-	if(rule.indexOf('-') >= 0) {
-		dateArr.value[3] = getCycleArr(rule, 31, false)
-		dayRuleSup.value = 'null'
-	} else if(rule.indexOf('/') >= 0) {
-		dateArr.value[3] = getAverageArr(rule, 31)
-		dayRuleSup.value = 'null'
-	} else if(rule.indexOf('W') >= 0) {
-		dayRule.value  = 'workDay'
-		dayRuleSup.value = Number(rule.match(/[0-9]{1,2}/g)![0])
-		dateArr.value[3] = [dayRuleSup.value as number]
-	} else if( rule.indexOf('L') >= 0 ) {
-		dayRule.value = 'lastDay'
-		dayRuleSup.value = 'null'
-		dateArr.value[3] = [31]
-	} else if(rule !== '*' && rule !== '?') {
-		dateArr.value[3] = getAssignArr(rule)
-		dayRuleSup.value = 'null'
-	} else if(rule === '*'){
-		dayRuleSup.value = 'null'
-	}
-}
-
-const getHourArr = (rule: string) => {
-	dateArr.value[2] = getOrderArr(0, 23)
-	if(rule.indexOf('-') >= 0) {
-		dateArr.value[2] = getCycleArr(rule, 24, true)
-	} else if(rule.indexOf('/') >= 0) {
-		dateArr.value[2] = getAverageArr(rule, 23)
-	} else if(rule !== '*') {
-		dateArr.value[2] = getAssignArr(rule)
-	}
-}
-
-const getMinArr = (rule: string) => {
-	dateArr.value[1] = getOrderArr(0, 59)
-	if(rule.indexOf('-') >= 0) {
-		dateArr.value[1] = getCycleArr(rule, 60, true)
-	} else if(rule.indexOf('/') >= 0) {
-		dateArr.value[1] = getAverageArr(rule, 59)
-	} else if(rule !== '*') {
-		dateArr.value[1] = getAssignArr(rule)
-	}
-}
-
-const getSecondArr = (rule: string) => {
-	dateArr.value[0] = getOrderArr(0, 59)
-	if(rule.indexOf('-') >= 0) {
-		dateArr.value[0] = getCycleArr(rule, 60, true)
-	} else if(rule.indexOf('/') >= 0) {
-		dateArr.value[0] = getAverageArr(rule, 59)
-	} else if(rule !== '*') {
-		dateArr.value[0] = getAssignArr(rule)
-	}
-}
-
-const getOrderArr = (min: number, max: number): number[] => {
-	let arr = []
-	for(let i = min; i <= max; i++) {
-		arr.push(i)
-	}
-	return arr
-}
-
-const getAssignArr = (rule: string): number[] => {
-	let arr = []
-	let assiginArr = rule.split(',')
-	for(let i = 0; i < assiginArr.length; i++) {
-		arr[i] = Number(assiginArr[i])
-	}
-	arr.sort(compare)
-	return arr
-}
-
-const getAverageArr = (rule: string, limit: number): number[] => {
-	let arr = []
-	let agArr = rule.split('/')
-	let min = Number(agArr[0])
-	let step = Number(agArr[1])
-	while(min <= limit) {
-		arr.push(min)
-		min += step
-	}
-	return arr
-}
-
-const getCycleArr = (rule: string, limit: number, status: boolean): number[] => {
-	let arr = []
-	let cycleArr = rule.split('-')
-	let min = Number(cycleArr[0])
-	let max = Number(cycleArr[1])
-	if(min > max) {
-		max += limit
-	}
-	for(let i = min; i <= max; i++) {
-		let add = 0
-		if(status === false && i % limit === 0) {
-			add = limit
-		}
-		arr.push(Math.round(i % limit + add))
-	}
-	arr.sort(compare)
-	return arr
-}
-
-const compare = (value1: number, value2: number): number => {
-	if(value2 - value1 > 0) {
-		return -1
-	} else {
-		return 1
-	}
-}
-
-const formatDate = (value: Date | number, type?: string): string => {
-	let time = typeof value === 'number' ? new Date(value) : value
-	let Y = time.getFullYear()
-	let M = time.getMonth() + 1
-	let D = time.getDate()
-	let h = time.getHours()
-	let m = time.getMinutes()
-	let s = time.getSeconds()
-	let week = time.getDay()
-	if(type === undefined) {
-		return Y + '/' + (M < 10 ? '0' + M : M) + '/' + (D < 10 ? '0' + D : D) + ' ' + (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s)
-	}else if(type === 'week') {
-		return week.toString()
-	}
-	return ''
-}
-
-const checkDate = (value: string): boolean => {
-	let time = new Date(value)
-	let format = formatDate(time)
-	return value === format ? true : false
-}
-
+/**
+ * 计算最近5次执行时间
+ * 
+ * 实现思路：
+ * 1. 使用 cron-parser 库解析 Cron 表达式
+ * 2. 从当前时间开始，使用 next() 方法获取下一次执行时间
+ * 3. 循环调用 next() 方法，获取5次执行时间
+ * 4. 将每次执行时间格式化为字符串并存储到结果列表中
+ * 5. 处理可能的错误（如无效的 Cron 表达式）
+ * 
+ * 注意事项：
+ * - 如果 Cron 表达式无效，会显示错误提示
+ * - 如果在100年内找不到5次执行时间，会显示实际找到的结果
+ * - 计算过程是异步的，使用 try-catch 捕获可能的异常
+ */
 const expressionChange = () => {
 	isShow.value = false
-	let ruleArr = props.ex.split(' ')
-	let nums = 0
-	let resultArr = [] as string[]
-	let nTime = new Date()
-	let nYear = nTime.getFullYear()
-	let nMouth = nTime.getMonth() + 1
-	let nDay = nTime.getDate()
-	let nHour = nTime.getHours()
-	let nMin = nTime.getMinutes()
-	let nSecond = nTime.getSeconds()
-	getSecondArr(ruleArr[0])
-	getMinArr(ruleArr[1])
-	getHourArr(ruleArr[2])
-	getDayArr(ruleArr[3])
-	getMouthArr(ruleArr[4])
-	getWeekArr(ruleArr[5])
-	getYearArr(ruleArr[6], nYear)
-	let sDate = dateArr.value[0]
-	let mDate = dateArr.value[1]
-	let hDate = dateArr.value[2]
-	let DDate = dateArr.value[3]
-	let MDate = dateArr.value[4]
-	let YDate = dateArr.value[5]
-	let sIdx = getIndex(sDate, nSecond)
-	let mIdx = getIndex(mDate, nMin)
-	let hIdx = getIndex(hDate, nHour)
-	let DIdx = getIndex(DDate, nDay)
-	let MIdx = getIndex(MDate, nMouth)
-	let YIdx = getIndex(YDate, nYear)
-	const resetSecond = function() {
-		sIdx = 0
-		nSecond = sDate[sIdx]
-	}
-	const resetMin = function(){
-		mIdx = 0
-		nMin = mDate[mIdx]
-		resetSecond()
-	}
-	const resetHour = function(){
-		hIdx = 0
-		nHour = hDate[hIdx]
-		resetMin()
-	}
-	const resetDay = function(){
-		DIdx = 0
-		nDay = DDate[DIdx]
-		resetHour()
-	}
-	const resetMouth = function(){
-		MIdx = 0
-		nMouth = MDate[MIdx]
-		resetDay()
-	}
-	if(nYear !== YDate[YIdx]){
-		resetMouth()
-	}
-	if(nMouth !== MDate[MIdx]){
-		resetDay()
-	}
-	if(nDay !== DDate[DIdx]){
-		resetHour()
-	}
-	if(nHour !== hDate[hIdx]){
-		resetMin()
-	}
-	if(nMin !== mDate[mIdx]){
-		resetSecond()
-	}
-
-	goYear: for(let Yi = YIdx; Yi < YDate.length; Yi++) {
-		let YY = YDate[Yi]
-		if(nMouth > MDate[MDate.length-1]){
-			resetMouth()
-			continue
+	
+	try {
+		// 解析 Cron 表达式
+		const expression = props.ex.trim()
+		
+		// 如果表达式为空，显示提示
+		if (!expression) {
+			resultList.value = ['请输入 Cron 表达式']
+			isShow.value = true
+			return
 		}
-		goMouth: for(let Mi = MIdx; Mi < MDate.length; Mi++) {
-			let MM = MDate[Mi]
-			MM = MM < 10 ? '0' + MM : MM
-			if(nDay > DDate[DDate.length -1]){
-				resetDay()
-				if(Mi === MDate.length-1){
-					resetMouth()
-					continue goYear
+		
+		// 使用 cron-parser 解析表达式
+		const interval = CronExpressionParser.parse(expression, {
+			currentDate: new Date()
+		})
+		
+		// 计算最近5次执行时间
+		const results: string[] = []
+		
+		for (let i = 0; i < 5; i++) {
+			try {
+				// 获取下一次执行时间
+				const nextDate = interval.next()
+				
+				// 检查是否超出100年范围
+				const maxDate = new Date()
+				maxDate.setFullYear(maxDate.getFullYear() + 100)
+				
+				if (nextDate.toDate() > maxDate) {
+					break
 				}
-				continue
-			}
-			goDay: for(let Di = DIdx; Di < DDate.length; Di++) {
-				let DD = DDate[Di]
-				let thisDD = DD < 10?'0'+DD:DD
-				if(nHour > hDate[hDate.length - 1]) {
-					resetHour()
-					if(Di === DDate.length - 1){
-						resetDay()
-						if(Mi === MDate.length-1){
-							resetMouth()
-							continue goYear
-						}
-						continue goMouth
-					}
-					continue
-				}
-				if(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true && dayRule.value !== 'workDay' && dayRule.value !== 'lastWeek' && dayRule.value !== 'lastDay') {
-					resetDay()
-					continue goMouth
-				}
-				if(dayRule.value === 'lastDay'){
-					if(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-						while(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-							DD --
-							thisDD = DD < 10?'0'+DD:DD
-						}
-					}
-				}else if(dayRule.value === 'workDay'){
-					if(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-						while(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-							DD --
-							thisDD = DD < 10?'0'+DD:DD
-						}
-					}
-					let thisWeek = formatDate(new Date(YY + '/' + MM + '/' + thisDD + ' 00:00:00'),'week')
-					if(thisWeek === '0'){
-						DD ++
-						thisDD = DD < 10?'0'+DD:DD
-						if(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-							DD -= 3
-						}
-					}else if(thisWeek === '6'){
-						if(dayRuleSup.value !== 1){
-							DD --
-						}else{
-							DD += 2
-						}
-					}
-				}else if(dayRule.value === 'weekDay'){
-					let thisWeek = formatDate(new Date(YY + '/' + MM + '/' + DD + ' 00:00:00'),'week')
-					if(Array.isArray(dayRuleSup.value) && dayRuleSup.value.indexOf(Number(thisWeek)) < 0){
-						if(Di === DDate.length - 1){
-							resetDay()
-							if(Mi === MDate.length-1){
-								resetMouth()
-								continue goYear
-							}
-							continue goMouth
-						}
-						continue
-					}
-				}else if(dayRule.value === 'assWeek'){
-					let thisWeek = formatDate(new Date(YY + '/' + MM + '/' + DD + ' 00:00:00'),'week')
-					if(Array.isArray(dayRuleSup.value) && dayRuleSup.value[1] >= Number(thisWeek)){
-						DD = (dayRuleSup.value[0]-1)*7 + dayRuleSup.value[1] - Number(thisWeek) + 1
-					}else if(Array.isArray(dayRuleSup.value)){
-						DD = dayRuleSup.value[0]*7 + dayRuleSup.value[1] - Number(thisWeek) + 1
-					}
-				}else if(dayRule.value === 'lastWeek'){
-					if(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-						while(checkDate(YY + '/' + MM + '/' + thisDD + ' 00:00:00') !== true){
-							DD --
-							thisDD = DD < 10?'0'+DD:DD
-						}
-					}
-					let thisWeek = formatDate(new Date(YY + '/' + MM + '/' + thisDD + ' 00:00:00'),'week')
-					if(typeof dayRuleSup.value === 'number' && dayRuleSup.value < Number(thisWeek)){
-						DD -= Number(thisWeek) - dayRuleSup.value
-					}else if(typeof dayRuleSup.value === 'number' && dayRuleSup.value > Number(thisWeek)){
-						DD -= 7 - (dayRuleSup.value - Number(thisWeek))
-					}
-				}
-				DD = DD < 10 ? '0' + DD : DD
-				goHour: for(let hi = hIdx; hi < hDate.length; hi++) {
-					let hh = hDate[hi] < 10 ? '0' + hDate[hi] : hDate[hi]
-					if(nMin > mDate[mDate.length - 1]) {
-						resetMin()
-						if(hi === hDate.length - 1){
-							resetHour()
-							if(Di === DDate.length - 1){
-								resetDay()
-								if(Mi === MDate.length-1){
-									resetMouth()
-									continue goYear
-								}
-								continue goMouth
-							}
-							continue goDay
-						}
-						continue
-					}
-					goMin: for(let mi = mIdx; mi < mDate.length; mi++) {
-						let mm = mDate[mi] < 10 ? '0' + mDate[mi] : mDate[mi]
-						if(nSecond > sDate[sDate.length - 1]) {
-							resetSecond()
-							if(mi === mDate.length-1){
-								resetMin()
-								if(hi === hDate.length - 1){
-									resetHour()
-									if(Di === DDate.length - 1){
-										resetDay()
-										if(Mi === MDate.length-1){
-											resetMouth()
-											continue goYear
-										}
-										continue goMouth
-									}
-									continue goDay
-								}
-								continue goHour
-							}
-							continue
-						}
-						goSecond: for(let si = sIdx; si <= sDate.length - 1; si++) {
-							let ss = sDate[si] < 10 ? '0' + sDate[si] : sDate[si]
-							resultArr.push(YY + '-' + MM + '-' + DD + ' ' + hh + ':' + mm + ':' + ss)
-							nums++
-							if(nums === 5) break goYear
-							if(si === sDate.length - 1){
-								resetSecond()
-								if(mi === mDate.length - 1){
-									resetMin()
-									if(hi === hDate.length - 1){
-										resetHour()
-										if(Di === DDate.length - 1){
-											resetDay()
-											if(Mi === MDate.length-1){
-												resetMouth()
-												continue goYear
-											}
-											continue goMouth
-										}
-										continue goDay
-									}
-									continue goHour
-								}
-								continue goMin
-							}
-						}
-					}
-				}
+				
+				// 格式化并添加到结果列表
+				results.push(formatDate(nextDate.toDate()))
+			} catch (error) {
+				// 如果无法找到更多执行时间，跳出循环
+				break
 			}
 		}
-	}
-	if(resultArr.length === 0){
-		resultList.value = ['没有达到条件的结果！']
-	}else{
-		resultList.value = resultArr
-		if(resultArr.length !== 5){
-			resultList.value.push('最近100年内只有上面'+resultArr.length+'条结果！')
+		
+		// 设置结果
+		if (results.length === 0) {
+			resultList.value = ['没有达到条件的结果！']
+		} else {
+			resultList.value = results
+			if (results.length !== 5) {
+				resultList.value.push(`最近100年内只有上面${results.length}条结果！`)
+			}
 		}
+	} catch (error) {
+		// 处理解析错误
+		resultList.value = ['无效的 Cron 表达式！']
+		console.error('Cron 表达式解析错误:', error)
 	}
+	
 	isShow.value = true
 }
 
+/**
+ * 监听 Cron 表达式变化
+ * 当表达式变化时，重新计算执行时间
+ */
 watch(() => props.ex, expressionChange)
 
+/**
+ * 组件挂载时初始化
+ * 计算初始表达式的执行时间
+ */
 onMounted(() => {
 	expressionChange()
 })
