@@ -56,7 +56,7 @@ const handleFill = (value) => {
   <div>
     <Crontab 
       :value="crontabValue"
-      @input="handleInput"
+      @update:value="handleInput"
     />
   </div>
 </template>

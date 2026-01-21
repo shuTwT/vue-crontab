@@ -1,6 +1,6 @@
 {
   "name": "@shutwt/vue-crontab",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A Vue.js component for crontab expression",
   "author": "shutwt",
   "type": "module",

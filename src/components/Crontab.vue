@@ -175,8 +175,7 @@ const props = withDefaults(defineProps<{
  * @event update:modelValue - 用于 v-model 双向绑定
  */
 const emit = defineEmits<{
-	input: [value: string]
-	'update:modelValue': [value: string]
+	'update:value': [value: string]
 }>()
 
 /**
@@ -268,8 +267,7 @@ const contabValueString = computed(() => {
  * 用于实现 v-model 双向绑定
  */
 watch(contabValueString, (value) => {
-	emit('input', value);
-	emit('update:modelValue', value);
+	emit('update:value', value);
 })
 
 /**
@@ -280,7 +278,7 @@ watch(contabValueString, (value) => {
 onMounted(() => {
 	if (props.value === '') {
 		// 没有传入初始值，使用默认值
-		emit('input', contabValueString.value);
+		emit('update:value', contabValueString.value);
 	} else {
 		// 解析传入的 Cron 表达式并填充到各个字段
 		let array = props.value.split(' ');

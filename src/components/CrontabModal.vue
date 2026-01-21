@@ -3,8 +3,7 @@
 		<div class="crontab-main">
 			<Crontab 
 				:value="internalValue"
-				@input="handleCrontabInput"
-				@update:modelValue="handleCrontabInput"
+				@update:value="handleCrontabInput"
 			/>
 			<div class="crontab-btns">
 				<button type="button" @click='submitFill'>确定</button>
@@ -48,13 +47,11 @@ const props = withDefaults(defineProps<{
  * @event hide - 隐藏弹窗时触发
  * @event fill - 点击确定按钮时触发，返回完整的 Cron 表达式
  * @event input - Cron 表达式变化时触发
- * @event update:modelValue - 用于 v-model 双向绑定
  */
 const emit = defineEmits<{
 	hide: []
 	fill: [value: string]
-	input: [value: string]
-	'update:modelValue': [value: string]
+	'update:value': [value: string]
 }>()
 
 /**
@@ -75,8 +72,7 @@ const internalValue = ref(props.value)
  */
 const handleCrontabInput = (value: string) => {
 	internalValue.value = value;
-	emit('input', value);
-	emit('update:modelValue', value);
+	emit('update:value', value);
 }
 
 /**
